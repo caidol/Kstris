@@ -1,8 +1,8 @@
 #include "main.h"
-#include "defs.h"
-#include <SDL2/SDL_video.h>
 
-int main(void){
-    printf("%d\n", WINDOW_TITLE);
+int main(int argc, const char * argv[]){
+    // Initialise system
+    init_system();
+
     return 0;
 }

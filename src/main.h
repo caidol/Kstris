@@ -5,5 +5,5 @@
 #include <stdbool.h> 
 
 // Custom libraries 
-#include "defs.h"
-
+#include "graphics.h"
+#include "init.h"
