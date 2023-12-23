@@ -17,6 +17,7 @@ all: $(PROG)
 $(PROG): $(OBJS)
 	echo "Hi"
 	$(CXX) $(OBJS) -o $(PROG) $(LDFLAGS)
+	rm *.o
 
 # cleaning everything that can be automatically recreated with "make"
 clean:

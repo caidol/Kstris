@@ -7,7 +7,7 @@
 static const char * WINDOW_TITLE = "Kstris";
 
 // block is square so no need to define separate dimensions 
-static const int BLOCK_SIZE = 50;
+static const int BLOCK_SIZE = 30;
 
 // playfield width is 2 greater than standard as this includes border blocks 
 static const int PLAYFIELD_HEIGHT = 22;

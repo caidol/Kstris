@@ -4,9 +4,11 @@
 
 #define default_alpha 255
 
+#define NUM_BLOCKS 7
+
 // tetronimo colour val defs
 
-enum block_colours{
+enum BLOCK_NAMES{
     RED, 
     GREEN, 
     BLUE, 
@@ -16,36 +18,23 @@ enum block_colours{
     GRAY,
 };
 
-void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
-    u8 rgb_code[3];
-    
-    // TODO: Change the below to make it more elegant
-    switch(colour){
-	case RED:
-	    rgb_code[0] = 255; rgb_code[1] = 0; rgb_code[2] = 0;
-	    break;
-	case GREEN:
-	    rgb_code[0] = 0; rgb_code[1] = 255; rgb_code[2] = 0;
-	    break; 
-	case BLUE:
-	    rgb_code[0] = 0; rgb_code[1] = 0; rgb_code[2] = 255;
-	    break;
-	case CYAN:
-	    rgb_code[0] = 0; rgb_code[1] = 100; rgb_code[2] = 0;
-	    break;
-	case ORANGE:
-	    rgb_code[0] = 255; rgb_code[1] = 165; rgb_code[2] = 0;
-	    break;
-	case MAGENTA:
-	    rgb_code[0] = 255; rgb_code[1] =  0; rgb_code[2] = 255;
-	    break; 
-	case GRAY:
-	    rgb_code[0] = 128; rgb_code[1] = 128; rgb_code[2] = 128;
-	    break; 
-	default:
-	    return;
-    }
+static const int BLOCK_COLOURS[NUM_BLOCKS][3] = {
+    {255, 0, 0}, // RED
+    {0, 255, 0}, // GREEN
+    {0, 0, 255}, // BLUE
+    {0, 100, 0}, // CYAN
+    {255, 165, 0}, // ORANGE 
+    {255, 0, 255}, // MAGENTA
+    {128, 128, 128}, // GRAY
+};
 
+void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
+    //TODO: Add more comments
+    u8 rgb_code[3];
+    *rgb_code = *BLOCK_COLOURS[colour];
+    *(rgb_code + 1) = *(BLOCK_COLOURS[colour] + 1);
+    *(rgb_code + 2) = *(BLOCK_COLOURS[colour] + 2);
+    
     SDL_Rect outer;
     SDL_Rect inner;
     
@@ -56,15 +45,18 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     outer.h = BLOCK_SIZE; 
 
     // setting boundary for inner colour of tetronimo block
-    inner.x = (x_pos + 1) * BLOCK_SIZE + 5;
-    inner.y = (y_pos + 1) * BLOCK_SIZE + 5; 
-    inner.w = BLOCK_SIZE - 10;
-    inner.h = BLOCK_SIZE - 10;
+    inner.x = (x_pos + 1) * BLOCK_SIZE + 4;
+    inner.y = (y_pos + 1) * BLOCK_SIZE + 4; 
+    inner.w = BLOCK_SIZE - 8;
+    inner.h = BLOCK_SIZE - 8;
 
     // Perform shifts to change the colour of the outside edge
-
-    // TODO: Find out how to shift rgb code for colour to make it darker
-    SDL_SetRenderDrawColor(renderer, 107, 28, 2, 255);
+    unsigned int r, g, b;
+    r = (*(rgb_code) >> 1) & 0xFF;
+    g = (*(rgb_code + 1) >> 1) & 0xFF;
+    b = (*(rgb_code + 2) >> 2) & 0xFF;
+    
+    SDL_SetRenderDrawColor(renderer, r, g, b, default_alpha);
     SDL_RenderFillRect(renderer, &outer);
 
     SDL_SetRenderDrawColor(renderer, *(rgb_code), *(rgb_code + 1), *(rgb_code + 2), default_alpha);
@@ -77,7 +69,7 @@ void draw_playfield(SDL_Renderer* renderer){
     SDL_RenderClear(renderer);   
     SDL_RenderPresent(renderer);
 
-    draw_block(renderer, PLAYFIELD_WIDTH / 2, PLAYFIELD_HEIGHT / 2, RED); 
+    draw_block(renderer, PLAYFIELD_WIDTH / 2, PLAYFIELD_HEIGHT / 2, ORANGE); 
 
     SDL_RenderPresent(renderer);
 }
@@ -96,7 +88,6 @@ void init_graphics(){
 	WINDOW_WIDTH, WINDOW_HEIGHT,
 	0
     );
-
 
     if (!window){
 	printf("error creating window: %s\n", SDL_GetError());
