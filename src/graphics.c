@@ -46,10 +46,10 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     outer.h = BLOCK_SIZE; 
 
     // setting boundary for inner colour of tetronimo block
-    inner.x = (x_pos + 1) * BLOCK_SIZE + 5;
-    inner.y = (y_pos + 1) * BLOCK_SIZE + 5; 
-    inner.w = BLOCK_SIZE - 10;
-    inner.h = BLOCK_SIZE - 10;
+    inner.x = (x_pos + 1) * BLOCK_SIZE + 3;
+    inner.y = (y_pos + 1) * BLOCK_SIZE + 3; 
+    inner.w = BLOCK_SIZE - 6;
+    inner.h = BLOCK_SIZE - 6;
 
     // Perform shifts to change the colour of the outside edge
     unsigned int r, g, b;
@@ -68,12 +68,29 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
 }
 
 void draw_playfield(SDL_Renderer* renderer){
+    // Function to draw the playfield, starting by drawing the border around which 
+    // the playfield will be contained
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    // Draw in a coloured box 
+    
     SDL_RenderClear(renderer);   
     SDL_RenderPresent(renderer);
 
-    draw_block(renderer, PLAYFIELD_WIDTH / 2, PLAYFIELD_HEIGHT / 2, RED); 
+    // Drawing border
+    for (int width = 0; width < PLAYFIELD_WIDTH; width++){
+	for (int height = 0; height < PLAYFIELD_HEIGHT; height++){
+	    if (height == 0 || height == PLAYFIELD_HEIGHT - 1){
+		// Draw the row of gray border blocks for the top and bottom row
+		
+		draw_block(renderer, width, height, GRAY);
+	    }
+	    else if (width == 0 || width == PLAYFIELD_WIDTH - 1){
+		// Draw the column of border blocks for the left and right columns 
+		
+		draw_block(renderer, width, height, GRAY);
+	    }      
+	}
+    }
 
     SDL_RenderPresent(renderer);
 }
