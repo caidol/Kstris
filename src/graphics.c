@@ -33,6 +33,8 @@ static const u8 BLOCK_COLOURS[NUM_BLOCK_COLOURS][3] = {
 
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
+    u8 offset_x = 30;
+
     assert(colour >= 0 && colour <= NUM_BLOCK_COLOURS);
     u8 rgb_code[3] = {*BLOCK_COLOURS[colour], *(BLOCK_COLOURS[colour] + 1), *(BLOCK_COLOURS[colour] + 2)};
 
@@ -46,8 +48,8 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     outer.h = BLOCK_SIZE; 
 
     // setting boundary for inner colour of tetronimo block
-    inner.x = (x_pos + 1) * BLOCK_SIZE + 3;
-    inner.y = (y_pos + 1) * BLOCK_SIZE + 3; 
+    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 3;
+    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 3; 
     inner.w = BLOCK_SIZE - 6;
     inner.h = BLOCK_SIZE - 6;
 

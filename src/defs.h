@@ -20,7 +20,7 @@ static const u8 BLOCK_SIZE = 30;
 static const u8 PLAYFIELD_HEIGHT = 22;
 static const u8 PLAYFIELD_WIDTH = 12;
 
-static const int WINDOW_HEIGHT = (PLAYFIELD_HEIGHT * BLOCK_SIZE) + 40;
-static const int WINDOW_WIDTH = (PLAYFIELD_WIDTH * BLOCK_SIZE) + 80;
+static const int WINDOW_HEIGHT = (PLAYFIELD_HEIGHT * BLOCK_SIZE) + 60;
+static const int WINDOW_WIDTH = (PLAYFIELD_WIDTH * BLOCK_SIZE) + 60;
 
 #endif
