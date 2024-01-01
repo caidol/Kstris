@@ -7,7 +7,7 @@
 #define check_rgb_overflow(channel) ( channel > 255 ) ? ( channel = 255 ) : ( channel )
 #define check_rgb_underflow(channel) ( channel < 0 ) ? ( channel = 0 ) : ( channel )
 
-#define NUM_BLOCK_COLOURS 7
+#define NUM_BLOCK_COLOURS 8
 
 // tetronimo colour val defs
 enum block_colours{
@@ -16,7 +16,8 @@ enum block_colours{
     BLUE, 
     CYAN, 
     ORANGE, 
-    MAGENTA, 
+    MAGENTA,
+    YELLOW, 
     GRAY,
 };
 
@@ -28,6 +29,7 @@ static const u8 BLOCK_COLOURS[NUM_BLOCK_COLOURS][3] = {
     {0, 255, 255}, // CYAN
     {255, 141, 0}, // ORANGE
     {255, 0, 255}, // MAGENTA
+    {255, 255, 0}, // YELLOW
     {128, 128, 128}, // GRAY
 };
 
