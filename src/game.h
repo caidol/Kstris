@@ -1,4 +1,5 @@
 #include "defs.h"
+#include "main.h"
 
 // Tetromino struct which defines its color and rotation schemes 
 //	--> per tetromino type
