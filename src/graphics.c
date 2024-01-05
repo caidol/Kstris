@@ -1,4 +1,6 @@
 #include "main.h"
+#include "graphics.h"
+#include "game.h"
 #include <SDL2/SDL_events.h>
 #include <stdlib.h>
 
@@ -7,38 +9,17 @@
 #define check_rgb_overflow(channel) ( channel > 255 ) ? ( channel = 255 ) : ( channel )
 #define check_rgb_underflow(channel) ( channel < 0 ) ? ( channel = 0 ) : ( channel )
 
-#define NUM_BLOCK_COLOURS 8
-
-// tetronimo colour val defs
-enum block_colours{
-    RED, 
-    GREEN, 
-    BLUE, 
-    CYAN, 
-    ORANGE, 
-    MAGENTA,
-    YELLOW, 
-    GRAY,
-};
-
-// rgb codes for each block colour
-static const u8 BLOCK_COLOURS[NUM_BLOCK_COLOURS][3] = {
-    {255, 0, 0}, // RED
-    {0, 255, 0}, // GREEN
-    {0, 0, 255}, // BLUE
-    {0, 255, 255}, // CYAN
-    {255, 141, 0}, // ORANGE
-    {255, 0, 255}, // MAGENTA
-    {255, 255, 0}, // YELLOW
-    {128, 128, 128}, // GRAY
-};
+// define the SDL window and renderer 
+SDL_Window* window;
+SDL_Renderer* renderer;
 
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
+    printf("drawing block\n");
     u8 offset_x = 30;
 
     assert(colour >= 0 && colour <= NUM_BLOCK_COLOURS);
-    u8 rgb_code[3] = {*BLOCK_COLOURS[colour], *(BLOCK_COLOURS[colour] + 1), *(BLOCK_COLOURS[colour] + 2)};
+    u8 rgb_code[3] = {*BLOCK_COLOURS_RGB[colour], *(BLOCK_COLOURS_RGB[colour] + 1), *(BLOCK_COLOURS_RGB[colour] + 2)};
 
     SDL_Rect outer;
     SDL_Rect inner;
@@ -50,10 +31,10 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     outer.h = BLOCK_SIZE; 
 
     // setting boundary for inner colour of tetronimo block
-    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 3;
-    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 3; 
-    inner.w = BLOCK_SIZE - 6;
-    inner.h = BLOCK_SIZE - 6;
+    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 2;
+    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 2; 
+    inner.w = BLOCK_SIZE - 4;
+    inner.h = BLOCK_SIZE - 4;
 
     // Perform shifts to change the colour of the outside edge
     unsigned int r, g, b;
@@ -75,7 +56,7 @@ void draw_playfield(SDL_Renderer* renderer){
     // Function to draw the playfield, starting by drawing the border around which 
     // the playfield will be contained
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, default_alpha);
     
     SDL_RenderClear(renderer);   
     SDL_RenderPresent(renderer);
@@ -92,7 +73,7 @@ void draw_playfield(SDL_Renderer* renderer){
 		// Draw the column of border blocks for the left and right columns 
 		
 		draw_block(renderer, width, height, GRAY);
-	    }      
+	    }   
 	}
     }
 
@@ -106,7 +87,7 @@ void init_graphics(){
 	exit(1);
     }
 
-    SDL_Window* window = SDL_CreateWindow(
+    window = SDL_CreateWindow(
 	// Window title 
 	WINDOW_TITLE,
 	SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -123,7 +104,7 @@ void init_graphics(){
 
     // Create a renderer, which sets up the graphics hardware 
     u32 render_flags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, render_flags);
+    renderer = SDL_CreateRenderer(window, -1, render_flags);
 
     if (!renderer){
 	printf("Error creating renderer: %s\n", SDL_GetError());
@@ -134,6 +115,17 @@ void init_graphics(){
     }
     
     draw_playfield(renderer);
+    
+    // Test below
+    /*
+    Tetromino_state tetromino_o = {
+	TETROMINOS[5],
+	0,
+	3, 3 
+    };
+    */
+
+    //render_tetromino(tetromino_o, tetromino_o.x, tetromino_o.y); 
 }
 
 void render_frame(SDL_Renderer* renderer){

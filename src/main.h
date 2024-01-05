@@ -4,6 +4,9 @@
 #include <string.h>
 #include <stdbool.h> 
 #include <assert.h>
+#include <unistd.h>
 
 // Custom libraries
 #include "init.h"
+#include "defs.h"
+#include "graphics.h"

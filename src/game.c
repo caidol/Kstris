@@ -1,84 +1,9 @@
 #include "game.h"
-#include "graphics.c"
-
-#define NUM_TETROMINOS 7
-static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
-    {
-	// I (line)	
-	.colour = GRAY,
-	.rotations = {
-	    0x00F0,
-	    0x2222,
-	    0x0F00,
-	    0x4444,
-	}
-    },
-    {
-	// L (right L)
-	.colour = BLUE, 
-	.rotations = {
-	    0x2E00,
-	    0x4460,
-	    0x0E80,
-	    0xC440
-	}
-    },       
-    {
-	// J (left L)
-	.colour = ORANGE, 
-	.rotations = {
-	    0x8E00, 
-	    0x6440,
-	    0x0E20, 
-	    0x44C0,
-	}
-    },
-    {
-	// S (right skew)
-	.colour = GREEN,
-	.rotations = {
-	    0x6C00, 
-	    0x4640,
-	    0x06C0, 
-	    0x8C40,
-	}
-    }, 
-    {
-	// Z (left skew) 
-	.colour = RED, 
-	.rotations = {
-	    0xC600, 
-	    0x2640, 
-	    0x0C60, 
-	    0x4C80,
-	}
-    }, 
-    {
-	// T 
-	.colour = MAGENTA, 
-	.rotations = {
-	    0x4E00,
-	    0x4640, 
-	    0x0E40, 
-	    0x4C40,
-	}
-    },
-    {
-	// O (cube)
-	.colour = YELLOW, 
-	.rotations = {
-	    0x0660, 
-	    0x0660, 
-	    0x0660, 
-	    0x0660, 
-	}
-    }
-};
 
 // Test for now 
-const Tetromino *tetromino_O = &TETROMINOS[NUM_TETROMINOS - 1];
+//const Tetromino *tetromino_O = &TETROMINOS[NUM_TETROMINOS - 1];
 
-bool render_tetromino(Tetromino_state tetromino, u8 x, u8 y){
+bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino_coordinate_queue){ 
     bool can_render_tetromino = true;
     u8 row = 0, col = 0;
 
@@ -86,7 +11,11 @@ bool render_tetromino(Tetromino_state tetromino, u8 x, u8 y){
     u16 bit, piece;
     piece = tetromino.shape.rotations[tetromino.rotation_id];
 
-    u8 *tetromino_render_queue = (u8*) malloc(2 * sizeof(u8));
+    if (tetromino_coordinate_queue == NULL){
+	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
+    }
+
+    u8 array_size = 2;    
 
     /*
     below is an error check 
@@ -103,39 +32,121 @@ bool render_tetromino(Tetromino_state tetromino, u8 x, u8 y){
     */
 
     u8 block_limit = 0; // in case all four tetromino blocks were found we can break out of the loop
-    for (bit = 0x8000; bit > 0 && block_limit < 3; bit = bit >> 1){
+    for (bit = 0x8000; bit > 0 && block_limit < 4; bit = bit >> 1){
+
 	if (piece & bit){ // check if a bit occurs
 	    u8 _x = x + col; 
 	    u8 _y = y + row;
 
 	    // account for gray block border
-	    if ((_x < BLOCK_SIZE) || (_x >= PLAYFIELD_WIDTH - BLOCK_SIZE)
-		|| (_y < BLOCK_SIZE) || (_y >= PLAYFIELD_HEIGHT - BLOCK_SIZE)
+	    if ((_x < 1) || (_x >= PLAYFIELD_WIDTH - 1)
+		|| (_y < 1) || (_y >= PLAYFIELD_HEIGHT - 1)
 		){
 		// tetromino block falls out of bounds 
 		return false;
+		break;
 	    } 
 	    else {
-		block_limit++;
-		int queue_limit = 2 * block_limit;
-
-		if (sizeof(&tetromino_render_queue) < queue_limit){
-		    tetromino_render_queue = (u8*) realloc(
-			tetromino_render_queue, 
+		int queue_limit = 2 * (block_limit + 1);
+    
+		if (array_size < queue_limit){
+		    tetromino_coordinate_queue = (u8*) realloc(
+			tetromino_coordinate_queue, 
 			queue_limit * sizeof(u8)
 		    );
+
+		    array_size += 2;
 		}	
+
+		// update queue 
+		tetromino_coordinate_queue[block_limit * 2] = _x; 
+		tetromino_coordinate_queue[block_limit * 2 + 1] = _y;
+	    
+		block_limit++;
 	    }
 	}
 
 	// cycle between columns and rows 
 	col++;
-	if(col == 3){
+	if(col == 4){
 	    row++;
+	    col = 0;
 	}
     }
 
+    free(tetromino_coordinate_queue);
+    return true;
+}
 
-    free(tetromino_render_queue);
+bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y){
+    u8 outline_colour = tetromino.shape.colour;
+    u8 row = 0, col = 0;
+
+    u16 current_rotation = tetromino.shape.rotations[tetromino.rotation_id];
+    u16 bit;
+
+    // TODO: possibly use dynamic memory allocation for the below
+    u8 search_columns[4];
+
+    int i = 0;
+    for (bit = 0x8000; bit > 0; bit = bit >> 1){
+	if (current_rotation & bit){ // occurence of a tetromino block
+	    bool no_blocks_beneath = true;
+	    u8 rows_to_search = 3 - row;
+
+	    while (rows_to_search --> 0){
+		u16 temp_bit = 0x8000 >> ((rows_to_search * 4) + (col + 1));
+
+		if (current_rotation & temp_bit){ // occurence of block below row but same column
+                    no_blocks_beneath = false; 
+		}
+	    }
+
+	    if(no_blocks_beneath){
+		search_columns[i] = col;
+		i++;
+	    }
+	}
+
+	col++;
+	if(col == 3){
+	    row++;
+	    col = 0;
+	}
+    }
+
+    // TODO: Search downward through each column and find the tallest block from all available columns
+    //		-> will require a board variable to manage positions of blocks
+
+    return true;
+}
+
+bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){
+    u8 *tetromino_coordinate_queue = NULL;
+
+    if(!valid_render_tetromino(tetromino, tetromino.x, tetromino.y, tetromino_coordinate_queue)){
+	return false;
+    }
+    
+    // If previous coordinates are available, then clear them 
+    for(int i = 0; i < sizeof(&previous_coords) / sizeof(u8); i++){
+	u8 _x = previous_coords[i * 2];
+	u8 _y = previous_coords[i * 2 + 1];
+
+	draw_block(renderer, _x, _y, EMPTY); 
+    }
+
+    // render the newly updated block coordinates 
+    for(int i = 0; i < 4; i++){
+	u8 _x = *(tetromino_coordinate_queue + i * 2);
+	u8 _y = *(tetromino_coordinate_queue + i * 2 + 1);
+	
+	draw_block(renderer, _x, _y, tetromino.shape.colour);
+
+	// store the new coordinates
+	previous_coords[i * 2] = _x;
+	previous_coords[i * 2 + 1] = _y;
+    }
+
     return true;
 }
