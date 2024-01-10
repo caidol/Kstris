@@ -60,7 +60,7 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
 	.colour = GREEN,
 	.rotations = {
 	    0x6C00, 
-	    0x4640,
+	    0x4620,
 	    0x06C0, 
 	    0x8C40,
 	}
@@ -115,4 +115,5 @@ typedef struct {
 
 extern SDL_Renderer *renderer;
 
-//bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino_coordinate_queue);
+bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino_coordinate_queue);
+bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y);

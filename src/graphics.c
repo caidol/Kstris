@@ -16,8 +16,6 @@ SDL_Renderer* renderer;
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
     printf("drawing block\n");
-    u8 offset_x = 30;
-
     assert(colour >= 0 && colour <= NUM_BLOCK_COLOURS);
     u8 rgb_code[3] = {*BLOCK_COLOURS_RGB[colour], *(BLOCK_COLOURS_RGB[colour] + 1), *(BLOCK_COLOURS_RGB[colour] + 2)};
 
@@ -49,6 +47,30 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     SDL_RenderFillRect(renderer, &outer);
 
     SDL_SetRenderDrawColor(renderer, *rgb_code, *(rgb_code + 1), *(rgb_code + 2), default_alpha);
+    SDL_RenderFillRect(renderer, &inner);
+}
+
+void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour){
+    assert(colour >= 0 && colour <= NUM_BLOCK_COLOURS);
+    u8 rgb_code[3] = {*BLOCK_COLOURS_RGB[colour], *(BLOCK_COLOURS_RGB[colour] + 1), *(BLOCK_COLOURS_RGB[colour] + 2)};
+    
+    SDL_Rect outline;
+    SDL_Rect inner;
+
+    outline.x = (x_pos + 1) * BLOCK_SIZE;
+    outline.y = (y_pos + 1) * BLOCK_SIZE; 
+    outline.w = BLOCK_SIZE;
+    outline.h = BLOCK_SIZE; 
+
+    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 2;
+    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 2; 
+    inner.w = BLOCK_SIZE - 4;
+    inner.h = BLOCK_SIZE - 4; 
+
+    SDL_SetRenderDrawColor(renderer, *rgb_code, *(rgb_code + 1), *(rgb_code + 2), default_alpha);
+    SDL_RenderFillRect(renderer, &outline);
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, default_alpha);
     SDL_RenderFillRect(renderer, &inner);
 }
 
@@ -117,15 +139,16 @@ void init_graphics(){
     draw_playfield(renderer);
     
     // Test below
-    /*
-    Tetromino_state tetromino_o = {
-	TETROMINOS[5],
-	0,
+    Tetromino_state tetromino_t = {
+	TETROMINOS[3],
+	1,
 	3, 3 
     };
-    */
 
-    //render_tetromino(tetromino_o, tetromino_o.x, tetromino_o.y); 
+    u8 *tetromino_coords = NULL;
+    valid_render_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y, tetromino_coords); 
+    render_ghost_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y);
+    SDL_RenderPresent(renderer);
 }
 
 void render_frame(SDL_Renderer* renderer){

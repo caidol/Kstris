@@ -1,7 +1,17 @@
 #include "game.h"
 
-// Test for now 
-//const Tetromino *tetromino_O = &TETROMINOS[NUM_TETROMINOS - 1];
+// Define playfield macros 
+
+#define PLAYFIELD_SIZE (PLAYFIELD_WIDTH * PLAYFIELD_WIDTH)
+
+static u8 PLAYFIELD[20][10];
+void init_playfield(u8 PLAYFIELD[20][10]){
+    for(int row = 0; row < PLAYFIELD_HEIGHT-2; row++){
+	for(int col = 0; col < PLAYFIELD_WIDTH-2; col++){
+	    PLAYFIELD[row][col] = 0;
+	}
+    }
+}
 
 bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino_coordinate_queue){ 
     bool can_render_tetromino = true;
@@ -74,8 +84,51 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino
 	}
     }
 
+    for(int i = 0; i < 4; i++){
+	u8 _x = tetromino_coordinate_queue[i * 2];
+	u8 _y = tetromino_coordinate_queue[i * 2 + 1];
+
+	draw_block(renderer, _x, _y, tetromino.shape.colour);
+    }
+
     free(tetromino_coordinate_queue);
     return true;
+}
+
+u8 find_tallest_row(u8 search_columns[], u8 original_rows[], u8 array_length, int *original_row, u8 x){
+    int position;
+    u8 selected_row = PLAYFIELD_HEIGHT - 2;
+
+    // loop through columns and find the highest block
+    for(position = 0; position < array_length; position++){
+	u8 col = search_columns[position];
+    
+	// loop through every row on the specified columns
+	// to check for block in lowest row position
+	for(u8 row = 0; row < PLAYFIELD_HEIGHT-2; row++){
+	    if(PLAYFIELD[row][col] == 1){
+		if(row <= selected_row){
+		    selected_row = row;
+		    *original_row = original_rows[position];
+		}
+	    }
+	}
+    }
+
+    // This occurs if no tetrominos have currently been placed on the board.
+    // -> find the lowest row in the original rows and set that as the original
+    //	  row
+    if(selected_row == PLAYFIELD_HEIGHT - 2 && *original_row == -1){ // a value of -1 shows that the original_row has not been updated
+	*original_row = original_rows[0];
+
+	for(position = 0; position < array_length; position++){
+	    if (original_rows[position] > *original_row){
+		*original_row = original_rows[position];
+	    } 
+	}
+    }
+
+    return selected_row;
 }
 
 bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y){
@@ -87,36 +140,57 @@ bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y){
 
     // TODO: possibly use dynamic memory allocation for the below
     u8 search_columns[4];
+    u8 selected_rows[4];
 
     int i = 0;
     for (bit = 0x8000; bit > 0; bit = bit >> 1){
 	if (current_rotation & bit){ // occurence of a tetromino block
 	    bool no_blocks_beneath = true;
-	    u8 rows_to_search = 3 - row;
+	    u8 rows_to_search = 4;
 
-	    while (rows_to_search --> 0){
+	    while (rows_to_search --> (row + 1)){
 		u16 temp_bit = 0x8000 >> ((rows_to_search * 4) + (col + 1));
 
 		if (current_rotation & temp_bit){ // occurence of block below row but same column
-                    no_blocks_beneath = false; 
+		    no_blocks_beneath = false; 
 		}
 	    }
 
 	    if(no_blocks_beneath){
-		search_columns[i] = col;
+		search_columns[i] = x + col;
+		selected_rows[i] = y + row;
 		i++;
 	    }
 	}
 
 	col++;
-	if(col == 3){
+	if(col == 4){
 	    row++;
 	    col = 0;
 	}
     }
 
-    // TODO: Search downward through each column and find the tallest block from all available columns
-    //		-> will require a board variable to manage positions of blocks
+    //TODO: Figure out a more efficient way to work out row difference later
+
+    int original_row = -1; // Use this later on to calculate the row offset
+    u8 tallest_row = find_tallest_row(search_columns, selected_rows, i, &original_row, x);
+    u8 row_difference = tallest_row - original_row;
+
+    // Render an outline of the same colour as the block and define its position
+    // TODO: DRAW A RECT
+   
+    col = 0, row = 0;
+    for(bit = 0x8000; bit > 0; bit = bit >> 1){
+	if(current_rotation & bit){
+	    draw_outline(renderer, x + col, y + (row_difference) + row, tetromino.shape.colour);
+	}
+	col++;
+	if(col == 4){
+	    row++;
+	    col = 0;
+	}
+    }
+    SDL_RenderPresent(renderer);
 
     return true;
 }

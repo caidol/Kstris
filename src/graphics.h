@@ -34,3 +34,4 @@ static const u8 BLOCK_COLOURS_RGB[NUM_BLOCK_COLOURS][3] = {
 
 void init_graphics();
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour);
+void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour);
