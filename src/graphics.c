@@ -29,10 +29,10 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     outer.h = BLOCK_SIZE; 
 
     // setting boundary for inner colour of tetronimo block
-    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 2;
-    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 2; 
-    inner.w = BLOCK_SIZE - 4;
-    inner.h = BLOCK_SIZE - 4;
+    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 3;
+    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 3; 
+    inner.w = BLOCK_SIZE - 6;
+    inner.h = BLOCK_SIZE - 6;
 
     // Perform shifts to change the colour of the outside edge
     unsigned int r, g, b;
@@ -139,15 +139,17 @@ void init_graphics(){
     draw_playfield(renderer);
     
     // Test below
+    /*
     Tetromino_state tetromino_t = {
 	TETROMINOS[3],
 	1,
 	3, 3 
     };
+    */
 
     u8 *tetromino_coords = NULL;
-    valid_render_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y, tetromino_coords); 
-    render_ghost_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y);
+    //valid_render_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y, tetromino_coords); 
+    //render_ghost_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y);
     SDL_RenderPresent(renderer);
 }
 

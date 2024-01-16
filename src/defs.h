@@ -14,13 +14,13 @@ typedef uint32_t u32;
 static const char * WINDOW_TITLE = "Kstris";
 
 // block is square so no need to define separate dimensions 
-static const u8 BLOCK_SIZE = 30;
+static const u8 BLOCK_SIZE = 40;
 
 // playfield width is 2 greater than standard as this includes border blocks 
 static const u8 PLAYFIELD_HEIGHT = 22;
 static const u8 PLAYFIELD_WIDTH = 12;
 
 static const int WINDOW_HEIGHT = (PLAYFIELD_HEIGHT * BLOCK_SIZE) + 60;
-static const int WINDOW_WIDTH = (PLAYFIELD_WIDTH * BLOCK_SIZE) + 60;
+static const int WINDOW_WIDTH = (PLAYFIELD_WIDTH * BLOCK_SIZE) + 600;
 
 #endif

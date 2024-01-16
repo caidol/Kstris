@@ -2,13 +2,38 @@
 
 // Define playfield macros 
 
+#define EXCLUDE_BORDER_WIDTH 20
+#define EXCLUDE_BORDER_HEIGHT 10
 #define PLAYFIELD_SIZE (PLAYFIELD_WIDTH * PLAYFIELD_WIDTH)
 
-static u8 PLAYFIELD[20][10];
-void init_playfield(u8 PLAYFIELD[20][10]){
-    for(int row = 0; row < PLAYFIELD_HEIGHT-2; row++){
-	for(int col = 0; col < PLAYFIELD_WIDTH-2; col++){
-	    PLAYFIELD[row][col] = 0;
+// TODO: Add challenge to the game once it is completed by decreasing the "frames per level"
+// to speed up the game.
+
+// Static struct for managing the "state" of the game, e.g ongoing processes 
+//	-> static ensures that only one instance can exist during execution
+static struct{
+    u8 PLAYFIELD[EXCLUDE_BORDER_HEIGHT][EXCLUDE_BORDER_WIDTH];
+
+    u32 score, lines;
+    bool menu, pause, stopped, destroy, game_over;
+
+    struct {
+	const Tetromino *next; 
+	const Tetromino *current;
+    } ttm_queue;
+
+    const Tetromino *hold;
+
+    //TODO: Add controls
+
+} game_process;
+
+void init_playfield(){
+    // Initialise every value within the playfield to 0
+    
+    for(int row = 0; row < EXCLUDE_BORDER_HEIGHT; row++){
+	for(int col = 0; col < EXCLUDE_BORDER_WIDTH; col++){
+	    game_process.PLAYFIELD[row][col] = 0;
 	}
     }
 }
@@ -106,7 +131,7 @@ u8 find_tallest_row(u8 search_columns[], u8 original_rows[], u8 array_length, in
 	// loop through every row on the specified columns
 	// to check for block in lowest row position
 	for(u8 row = 0; row < PLAYFIELD_HEIGHT-2; row++){
-	    if(PLAYFIELD[row][col] == 1){
+	    if(game_process.PLAYFIELD[row][col] == 1){
 		if(row <= selected_row){
 		    selected_row = row;
 		    *original_row = original_rows[position];
@@ -177,7 +202,6 @@ bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y){
     u8 row_difference = tallest_row - original_row;
 
     // Render an outline of the same colour as the block and define its position
-    // TODO: DRAW A RECT
    
     col = 0, row = 0;
     for(bit = 0x8000; bit > 0; bit = bit >> 1){
@@ -221,6 +245,34 @@ bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){
 	previous_coords[i * 2] = _x;
 	previous_coords[i * 2 + 1] = _y;
     }
+
+    return true;
+}
+
+/*
+This function will retrieve the next tetromino from the render queue
+
+-> updates the current tetromino and next tetromino buffer
+-> a release of a held tetromino will override queue
+*/
+bool spawn_tetromino(Tetromino_state tetromino){
+    // use current time as a seed 
+    srand(time(0));
+
+    if(game_process.ttm_queue.next == NULL){
+	game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
+    } 
+
+    game_process.ttm_queue.current = game_process.ttm_queue.next;
+    game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
+
+    // Initialise the Tetromino_state struct with our selected Tetromino from queue
+
+    Tetromino_state current_tetromino = {
+	(Tetromino) {game_process.ttm_queue.current->colour, game_process.ttm_queue.current->rotations[0]}, 
+	0,
+	(u8) PLAYFIELD_WIDTH / 2, (u8) PLAYFIELD_HEIGHT / 2,
+    };
 
     return true;
 }
