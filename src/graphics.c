@@ -137,7 +137,7 @@ void init_graphics(){
     }
     
     draw_playfield(renderer);
-    
+    SDL_RenderPresent(renderer);
     // Test below
     /*
     Tetromino_state tetromino_t = {
@@ -147,9 +147,10 @@ void init_graphics(){
     };
     */
 
-    u8 *tetromino_coords = NULL;
+    //u8 *tetromino_coords = NULL;
     //valid_render_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y, tetromino_coords); 
     //render_ghost_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y);
+    spawn_tetromino();
     SDL_RenderPresent(renderer);
 }
 

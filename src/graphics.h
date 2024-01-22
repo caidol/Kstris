@@ -9,23 +9,23 @@ extern SDL_Renderer *renderer;
 #ifndef _BLOCK_COLOURS_
 #define _BLOCK_COLOURS_
 enum colours{
-    RED, 
-    GREEN, 
-    BLUE, 
     CYAN, 
+    BLUE, 
     ORANGE, 
-    MAGENTA,
+    GREEN, 
+    RED, 
+    MAGENTA, 
     YELLOW, 
     GRAY,
 };
 
 // rgb codes for each block colour
 static const u8 BLOCK_COLOURS_RGB[NUM_BLOCK_COLOURS][3] = {
-    {255, 0, 0}, // RED
-    {0, 255, 0}, // GREEN
-    {0, 0, 255}, // BLUE
     {0, 255, 255}, // CYAN
+    {0, 0, 255}, // BLUE
     {255, 141, 0}, // ORANGE
+    {0, 255, 0}, // GREEN
+    {255, 0, 0}, // RED 
     {255, 0, 255}, // MAGENTA
     {255, 255, 0}, // YELLOW
     {128, 128, 128}, // GRAY

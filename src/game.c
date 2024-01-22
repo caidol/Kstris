@@ -38,19 +38,18 @@ void init_playfield(){
     }
 }
 
-bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino_coordinate_queue){ 
+bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size){ 
     bool can_render_tetromino = true;
     u8 row = 0, col = 0;
 
+    u8 x = tetromino.x;
+    u8 y = tetromino.y;
+
     // access correct rotation matrix data
     u16 bit, piece;
-    piece = tetromino.shape.rotations[tetromino.rotation_id];
+    piece = tetromino.shape.rotations[tetromino.rotation_id]; 
 
-    if (tetromino_coordinate_queue == NULL){
-	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
-    }
-
-    u8 array_size = 2;    
+    *array_size = 2;    
 
     /*
     below is an error check 
@@ -84,13 +83,13 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino
 	    else {
 		int queue_limit = 2 * (block_limit + 1);
     
-		if (array_size < queue_limit){
+		if (*array_size < queue_limit){
 		    tetromino_coordinate_queue = (u8*) realloc(
 			tetromino_coordinate_queue, 
 			queue_limit * sizeof(u8)
 		    );
 
-		    array_size += 2;
+		    *array_size += 2;
 		}	
 
 		// update queue 
@@ -109,14 +108,6 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino
 	}
     }
 
-    for(int i = 0; i < 4; i++){
-	u8 _x = tetromino_coordinate_queue[i * 2];
-	u8 _y = tetromino_coordinate_queue[i * 2 + 1];
-
-	draw_block(renderer, _x, _y, tetromino.shape.colour);
-    }
-
-    free(tetromino_coordinate_queue);
     return true;
 }
 
@@ -219,33 +210,46 @@ bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y){
     return true;
 }
 
-bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){
+bool render_tetromino(Tetromino_state tetromino){ //, u8 previous_coords[]){
     u8 *tetromino_coordinate_queue = NULL;
 
-    if(!valid_render_tetromino(tetromino, tetromino.x, tetromino.y, tetromino_coordinate_queue)){
-	return false;
+    if (tetromino_coordinate_queue == NULL){
+	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
     }
     
+    u8 size = 0;
+    u8 *array_size = &size;
+
+    if(!valid_render_tetromino(tetromino, tetromino_coordinate_queue, array_size)){
+	return false;
+    }
+
+    printf("size: %d\n", size);  
+
     // If previous coordinates are available, then clear them 
+    /*
     for(int i = 0; i < sizeof(&previous_coords) / sizeof(u8); i++){
 	u8 _x = previous_coords[i * 2];
 	u8 _y = previous_coords[i * 2 + 1];
 
 	draw_block(renderer, _x, _y, EMPTY); 
     }
+    */
 
     // render the newly updated block coordinates 
+    
     for(int i = 0; i < 4; i++){
-	u8 _x = *(tetromino_coordinate_queue + i * 2);
-	u8 _y = *(tetromino_coordinate_queue + i * 2 + 1);
+	u8 _x = tetromino_coordinate_queue[i * 2];
+	u8 _y = tetromino_coordinate_queue[i * 2 + 1];
 	
 	draw_block(renderer, _x, _y, tetromino.shape.colour);
 
 	// store the new coordinates
-	previous_coords[i * 2] = _x;
-	previous_coords[i * 2 + 1] = _y;
+	//previous_coords[i * 2] = _x;
+	//previous_coords[i * 2 + 1] = _y;
     }
 
+    free(tetromino_coordinate_queue);
     return true;
 }
 
@@ -255,24 +259,44 @@ This function will retrieve the next tetromino from the render queue
 -> updates the current tetromino and next tetromino buffer
 -> a release of a held tetromino will override queue
 */
-bool spawn_tetromino(Tetromino_state tetromino){
+bool spawn_tetromino(){
     // use current time as a seed 
     srand(time(0));
 
     if(game_process.ttm_queue.next == NULL){
+	printf("HELLO\n");
 	game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
     } 
 
-    game_process.ttm_queue.current = game_process.ttm_queue.next;
-    game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
-
+    game_process.ttm_queue.current = game_process.ttm_queue.next; 
+    
     // Initialise the Tetromino_state struct with our selected Tetromino from queue
-
     Tetromino_state current_tetromino = {
-	(Tetromino) {game_process.ttm_queue.current->colour, game_process.ttm_queue.current->rotations[0]}, 
+	(Tetromino) {
+	    game_process.ttm_queue.current->colour, 
+	    {
+		game_process.ttm_queue.current->rotations[0], 
+		game_process.ttm_queue.current->rotations[1], 
+		game_process.ttm_queue.current->rotations[2], 
+		game_process.ttm_queue.current->rotations[3]
+	    }
+	}, 
 	0,
-	(u8) PLAYFIELD_WIDTH / 2, (u8) PLAYFIELD_HEIGHT / 2,
+	(u8) (PLAYFIELD_WIDTH / 2) - 2, (u8) 1,
     };
+   
+    printf("colour: %d\n", game_process.ttm_queue.current->colour);
+    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[0]);
+    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[1]);
+    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[2]);
+    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[3]);
 
+    // render in the current tetromino
+    u8 previous_coords[8] = {0};
+    //valid_render_tetromino(current_tetromino, current_tetromino.x, current_tetromino.y, previous_coords);
+    render_tetromino(current_tetromino); //, previous_coords);
+    //render_ghost_tetromino(current_tetromino, current_tetromino.x, current_tetromino.y);
+
+    game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
     return true;
 }

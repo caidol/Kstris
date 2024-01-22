@@ -115,5 +115,6 @@ typedef struct {
 
 extern SDL_Renderer *renderer;
 
-bool valid_render_tetromino(Tetromino_state tetromino, u8 x, u8 y, u8 *tetromino_coordinate_queue);
+bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size);
 bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y);
+bool spawn_tetromino();
