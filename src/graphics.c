@@ -15,7 +15,6 @@ SDL_Renderer* renderer;
 
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
-    printf("drawing block\n");
     assert(colour >= 0 && colour <= NUM_BLOCK_COLOURS);
     u8 rgb_code[3] = {*BLOCK_COLOURS_RGB[colour], *(BLOCK_COLOURS_RGB[colour] + 1), *(BLOCK_COLOURS_RGB[colour] + 2)};
 

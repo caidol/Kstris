@@ -3,7 +3,7 @@
 extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 
-#define NUM_BLOCK_COLOURS 8
+#define NUM_BLOCK_COLOURS 9
 
 // tetronimo colour val defs
 #ifndef _BLOCK_COLOURS_
@@ -29,6 +29,7 @@ static const u8 BLOCK_COLOURS_RGB[NUM_BLOCK_COLOURS][3] = {
     {255, 0, 255}, // MAGENTA
     {255, 255, 0}, // YELLOW
     {128, 128, 128}, // GRAY
+    {0, 0, 0} // BLACK (EMPTY)
 };
 #endif
 

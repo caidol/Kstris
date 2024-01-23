@@ -4,7 +4,7 @@
 
 // an empty block will be the same as the background colour
 // -> black
-#define EMPTY 0x00000000
+#define EMPTY 8
 
 // Tetromino struct which defines its color and rotation schemes 
 //	--> per tetromino type
@@ -29,9 +29,9 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
 	// I (line)	
 	.colour = CYAN,
 	.rotations = {
-	    0x00F0,
-	    0x2222,
 	    0x0F00,
+	    0x2222,
+	    0x00F0,
 	    0x4444,
 	}
     },
@@ -89,10 +89,10 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
 	// O (cube)
 	.colour = YELLOW, 
 	.rotations = {
-	    0x0660, 
-	    0x0660, 
-	    0x0660, 
-	    0x0660, 
+	    0xCC00, 
+	    0xCC00, 
+	    0xCC00, 
+	    0xCC00, 
 	}
     }
 };
