@@ -11,7 +11,7 @@
 
 typedef struct{
     // Follow standard RGBA convention 0xRRGGBBAA
-    u32 colour;
+    Hex_colours colour;
 
     // The following array contains the rotation scheme 
     // for each of the four max possible rotations. 
@@ -27,17 +27,17 @@ typedef struct{
 static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// I (line)	
-	.colour = CYAN,
+	.colour = CYAN_HEX,
 	.rotations = {
-	    0x0F00,
+	    0xF000,
 	    0x2222,
-	    0x00F0,
+	    0x0F00,
 	    0x4444,
 	}
     },
     {
 	// L (right L)
-	.colour = BLUE, 
+	.colour = BLUE_HEX, 
 	.rotations = {
 	    0x2E00,
 	    0x4460,
@@ -47,7 +47,7 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },       
     {
 	// J (left L)
-	.colour = ORANGE, 
+	.colour = ORANGE_HEX, 
 	.rotations = {
 	    0x8E00, 
 	    0x6440,
@@ -57,7 +57,7 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },
     {
 	// S (right skew)
-	.colour = GREEN,
+	.colour = GREEN_HEX,
 	.rotations = {
 	    0x6C00, 
 	    0x4620,
@@ -67,7 +67,7 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     }, 
     {
 	// Z (left skew) 
-	.colour = RED, 
+	.colour = RED_HEX, 
 	.rotations = {
 	    0xC600, 
 	    0x2640, 
@@ -77,7 +77,7 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     }, 
     {
 	// T 
-	.colour = MAGENTA, 
+	.colour = MAGENTA_HEX, 
 	.rotations = {
 	    0x4E00,
 	    0x4640, 
@@ -87,7 +87,7 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },
     {
 	// O (cube)
-	.colour = YELLOW, 
+	.colour = YELLOW_HEX, 
 	.rotations = {
 	    0xCC00, 
 	    0xCC00, 

@@ -103,7 +103,8 @@ void draw_playfield(SDL_Renderer* renderer){
 
 // Initialise graphics
 void init_graphics(){
-    if (SDL_Init(SDL_INIT_VIDEO) != 0){
+    u32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS;
+    if (SDL_Init(sdl_flags) != 0){
 	printf("error initialising SDL: %s\n", SDL_GetError());
 	exit(1);
     }

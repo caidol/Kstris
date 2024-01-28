@@ -23,9 +23,7 @@ static struct{
     } ttm_queue;
 
     const Tetromino *hold;
-
-    //TODO: Add controls
-
+    SDL_TimerID autodrop_timer;
 } game_process;
 
 void init_playfield(){
@@ -211,6 +209,9 @@ bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y){
 }
 
 bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){ //, u8 previous_coords[]){
+    // TODO: Check the previous tetromino spawn as well to ensure that no tetromino type 
+    //       is spawned more than once.
+
     u8 *tetromino_coordinate_queue = NULL;
 
     if (tetromino_coordinate_queue == NULL){
@@ -245,8 +246,8 @@ bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){ //, u8 p
 	draw_block(renderer, _x, _y, tetromino.shape.colour);
 
 	// store the new coordinates
-	//previous_coords[i * 2] = _x;
-	//previous_coords[i * 2 + 1] = _y;
+	previous_coords[i * 2] = _x;
+	previous_coords[i * 2 + 1] = _y;
     }
 
     free(tetromino_coordinate_queue);
@@ -264,7 +265,6 @@ bool spawn_tetromino(){
     srand(time(0));
 
     if(game_process.ttm_queue.next == NULL){
-	printf("HELLO\n");
 	game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
     } 
 
@@ -285,12 +285,6 @@ bool spawn_tetromino(){
 	(u8) (PLAYFIELD_WIDTH / 2) - 2, (u8) 1,
     };
    
-    printf("colour: %d\n", game_process.ttm_queue.current->colour);
-    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[0]);
-    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[1]);
-    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[2]);
-    printf("current rotation: %d\n", game_process.ttm_queue.current->rotations[3]);
-
     // render in the current tetromino
     // TODO: Define once in init function
     u8 previous_coords[8] = {0};
@@ -300,5 +294,75 @@ bool spawn_tetromino(){
     render_ghost_tetromino(current_tetromino, current_tetromino.x, current_tetromino.y);
 
     game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
+    SDL_RenderPresent(renderer);
     return true;
+}
+
+u32 autodrop_callback(u32 interval, void *param){
+    SDL_Event event;
+    SDL_UserEvent user_event;
+
+    user_event.type = SDL_USEREVENT;
+    user_event.code = 0;
+    user_event.data1 = NULL;
+    user_event.data2 = NULL;
+
+    event.type = SDL_USEREVENT;
+    event.user = user_event;
+
+    // Add the SDL event pointer to the queue
+    SDL_PushEvent(&event);
+
+    return interval;
+}
+
+void update_game(Tetromino_state tetromino){
+    // TODO:
+    //
+    // - Add an auto drop timer and move the entire tetromino down a place
+    // - Render the current tetromino and score on the sides 
+    // - Render the held tetromino -> potentially for another function
+    // - Switch between different Tetromino actions to render the tetromino a certain way
+
+    if (game_process.autodrop_timer == 0){
+	game_process.autodrop_timer = SDL_AddTimer(500, autodrop_callback, NULL);
+    }
+
+    // action from the keyboard
+    switch(TETROMINO_ACTION){
+	case NONE: 
+	    break; 
+
+	case MOVE_LEFT:
+	    tetromino.x -= 1;
+	    // render tetromino 
+	    break;
+
+	case MOVE_RIGHT:
+	    tetromino.x += 1;
+	    // render tetromino 
+	    break; 
+
+	case ROTATE:
+	    tetromino.rotation_id = (tetromino.rotation_id + 1) % 4;
+	    // render tetromino 
+	    break;
+
+	case SOFT_DROP:
+	    break;
+
+	case HARD_DROP:
+	    break;
+
+	case AUTO_DROP:
+	    tetromino.y += 1;
+	    
+
+	    // Write a function to deal with tetrominos that are "locked"
+	    // at the bottom of the board
+	
+	    break;
+    }
+
+    TETROMINO_ACTION = NONE;
 }

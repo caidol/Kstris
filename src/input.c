@@ -16,6 +16,31 @@ void process_input(){
 		    case SDLK_ESCAPE:
 			exit(0);
 			break;
+		    
+		    case SDLK_s:
+		    case SDLK_DOWN:
+			TETROMINO_ACTION = SOFT_DROP;
+			break;
+		    
+		    case SDLK_w:
+		    case SDLK_UP:
+			TETROMINO_ACTION = ROTATE;
+			break;
+		    
+		    case SDLK_a:
+		    case SDLK_LEFT:
+			TETROMINO_ACTION = MOVE_LEFT;
+			break;
+
+		    case SDLK_d:
+		    case SDLK_RIGHT:
+			TETROMINO_ACTION = MOVE_RIGHT;
+			break;
+
+		    case SDLK_SPACE:
+			TETROMINO_ACTION = HARD_DROP;
+			break;
+
 		    default:
 			break;
 	    }

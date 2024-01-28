@@ -8,6 +8,17 @@ extern SDL_Renderer *renderer;
 // tetronimo colour val defs
 #ifndef _BLOCK_COLOURS_
 #define _BLOCK_COLOURS_
+typedef enum {
+    CYAN_HEX =		0x00FFFFFF, 
+    BLUE_HEX =		0x0000FFFF, 
+    ORANGE_HEX =	0xFF8D00FF, 
+    GREEN_HEX =		0x00FF00FF, 
+    RED_HEX =		0xFF0000FF, 
+    MAGENTA_HEX =	0xFF00FFFF, 
+    YELLOW_HEX =	0xFFFF00FF,
+    GRAY_HEX =		0x808080FF, 
+} Hex_colours;
+
 enum colours{
     CYAN, 
     BLUE, 
@@ -16,7 +27,7 @@ enum colours{
     RED, 
     MAGENTA, 
     YELLOW, 
-    GRAY,
+    GRAY, 
 };
 
 // rgb codes for each block colour
