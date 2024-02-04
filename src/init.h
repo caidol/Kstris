@@ -1,4 +1,5 @@
 #include "graphics.h"
+#include "game.h"
 #include "input.h"
 
 extern SDL_Window *window; 

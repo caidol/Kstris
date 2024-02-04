@@ -1,7 +1,9 @@
 #include "defs.h"
-#include "main.h"
+#include "input.h"
 #include "graphics.h"
 
+#ifndef _GAME_CONSTANTS_
+#define _GAME_CONSTANTS_
 // an empty block will be the same as the background colour
 // -> black
 #define EMPTY 8
@@ -12,6 +14,7 @@
 typedef struct{
     // Follow standard RGBA convention 0xRRGGBBAA
     Hex_colours colour;
+    u8 colour_id;
 
     // The following array contains the rotation scheme 
     // for each of the four max possible rotations. 
@@ -28,6 +31,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// I (line)	
 	.colour = CYAN_HEX,
+	.colour_id = CYAN, 
+
 	.rotations = {
 	    0xF000,
 	    0x2222,
@@ -38,6 +43,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// L (right L)
 	.colour = BLUE_HEX, 
+	.colour_id = BLUE, 
+
 	.rotations = {
 	    0x2E00,
 	    0x4460,
@@ -48,6 +55,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// J (left L)
 	.colour = ORANGE_HEX, 
+	.colour_id = ORANGE, 
+
 	.rotations = {
 	    0x8E00, 
 	    0x6440,
@@ -58,6 +67,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// S (right skew)
 	.colour = GREEN_HEX,
+	.colour_id = GREEN, 
+
 	.rotations = {
 	    0x6C00, 
 	    0x4620,
@@ -68,6 +79,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// Z (left skew) 
 	.colour = RED_HEX, 
+	.colour_id = RED, 
+
 	.rotations = {
 	    0xC600, 
 	    0x2640, 
@@ -78,6 +91,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// T 
 	.colour = MAGENTA_HEX, 
+	.colour_id = MAGENTA, 
+
 	.rotations = {
 	    0x4E00,
 	    0x4640, 
@@ -88,6 +103,8 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// O (cube)
 	.colour = YELLOW_HEX, 
+	.colour_id = YELLOW, 
+
 	.rotations = {
 	    0xCC00, 
 	    0xCC00, 
@@ -113,8 +130,16 @@ typedef struct {
 
 } Tetromino_state;
 
+static u8 lock_delay_count = 0;
+static u8 previous_coords[8] = {0};
+static Tetromino_state CURRENT_TETROMINO;
 extern SDL_Renderer *renderer;
+extern Tetromino_Actions TETROMINO_ACTION;
 
+void init_tetris();
 bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size);
-bool render_ghost_tetromino(Tetromino_state tetromino, u8 x, u8 y);
+bool render_ghost_tetromino(Tetromino_state tetromino);
+void update_game();
 bool spawn_tetromino();
+
+#endif

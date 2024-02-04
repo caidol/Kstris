@@ -1,7 +1,17 @@
+// Standard libraries 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h>
+#include <stdbool.h> 
+#include <assert.h>
+#include <unistd.h>
+#include <time.h>
+
 // SDL libraries 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
-#include <SDL2/SDL_image.h> 
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_scancode.h>
 

@@ -13,7 +13,7 @@ typedef enum{
     AUTO_DROP,
 } Tetromino_Actions;
 
-Tetromino_Actions TETROMINO_ACTION;
+extern Tetromino_Actions TETROMINO_ACTION;
 
 #endif
 

@@ -1,7 +1,9 @@
 #include "defs.h"
 
 extern SDL_Window *window;
-extern SDL_Renderer *renderer;
+extern SDL_Renderer *texture;
+extern SDL_Texture *display;
+extern TTF_Font *gFont;
 
 #define NUM_BLOCK_COLOURS 9
 

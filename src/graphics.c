@@ -12,6 +12,7 @@
 // define the SDL window and renderer 
 SDL_Window* window;
 SDL_Renderer* renderer;
+TTF_Font* gFont;
 
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
@@ -136,30 +137,47 @@ void init_graphics(){
 	exit(1);
     }
     
+    // TODO: Use the render_graphics() function in place with repeated use of SDL_RenderPresent();
     draw_playfield(renderer);
     SDL_RenderPresent(renderer);
-    // Test below
+   
     /*
-    Tetromino_state tetromino_t = {
-	TETROMINOS[3],
-	1,
-	3, 3 
-    };
+    // TODO: Create the texture for render context and load in a .ttf font
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    // Create a texture for a rendering context 
+    SDL_Texture *texture = SDL_CreateTexture(
+	renderer, 
+	SDL_PIXELFORMAT_RGBA8888, 
+	SDL_TEXTUREACCESS_TARGET, 
+	WINDOW_WIDTH, WINDOW_HEIGHT
+    );
+
+    SDL_SetRenderTarget(renderer, texture);
+ 
+    // Load font 
+    gFont = TTF_OpenFont("src/font/PressStart2P.ttf", 30);
+
+    if (gFont == NULL){
+	printf("Error loading font %s\n", SDL_GetError());
+	exit(1);
+    }
+
+    // Set the font hinting 
+    TTF_SetFontHinting(gFont, TTF_HINTING_MONO);
     */
+}
 
-    //u8 *tetromino_coords = NULL;
-    //valid_render_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y, tetromino_coords); 
-    //render_ghost_tetromino(tetromino_t, tetromino_t.x, tetromino_t.y);
-    spawn_tetromino();
+void render_frame(SDL_Renderer* renderer){ 
+    // setting the target to NULL will automatically render to the window
+    SDL_SetRenderTarget(renderer, NULL); 
+
     SDL_RenderPresent(renderer);
 }
 
-void render_frame(SDL_Renderer* renderer){
-    SDL_RenderPresent(renderer);
-}
-
-void cleanup_graphics(SDL_Window* window){
+void cleanup_graphics(){
     // Clean resources by destroying window and quitting from SDL2 
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
