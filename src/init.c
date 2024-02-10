@@ -16,15 +16,9 @@ void init_system(){
     init_tetris();
 }
 
-void sdl_cleanup(SDL_Window *window, SDL_Renderer *renderer){
-    if (window){
-	SDL_DestroyWindow(window);
-    }
-
-    if (renderer){
-	SDL_DestroyRenderer(renderer);
-    }
-
+void sdl_cleanup(){
+    cleanup_graphics();
+	
     // Completely quit SDL 
     SDL_Quit();
 }

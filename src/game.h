@@ -7,6 +7,18 @@
 // an empty block will be the same as the background colour
 // -> black
 #define EMPTY 8
+#define EMPTY_HEX 0x000000FF
+
+typedef enum {
+    CYAN_HEX =		0x00FFFFFF, 
+    BLUE_HEX =		0x0000FFFF, 
+    ORANGE_HEX =	0xFF8D00FF, 
+    GREEN_HEX =		0x00FF00FF, 
+    RED_HEX =		0xFF0000FF, 
+    MAGENTA_HEX =	0xFF00FFFF, 
+    YELLOW_HEX =	0xFFFF00FF,
+    GRAY_HEX =		0x808080FF, 
+} Hex_colours;
 
 // Tetromino struct which defines its color and rotation schemes 
 //	--> per tetromino type
@@ -34,9 +46,9 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
 	.colour_id = CYAN, 
 
 	.rotations = {
-	    0xF000,
-	    0x2222,
 	    0x0F00,
+	    0x2222,
+	    0x00F0,
 	    0x4444,
 	}
     },
@@ -125,21 +137,35 @@ typedef struct {
     // used to select correct rotation from Tetromino.rotations array
     u8 rotation_id; 
  
-    u8 x;
-    u8 y;
+    i8 x;
+    i8 y;
 
 } Tetromino_state;
 
 static u8 lock_delay_count = 0;
-static u8 previous_coords[8] = {0};
+
+static u8 previous_coords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+static u8 previous_ghost_coords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+
+static bool AUTODROP_EXPIRED = false;
+static bool SOFTDROP_EXPIRED = false;
+
 static Tetromino_state CURRENT_TETROMINO;
+static Tetromino_state GHOST_TETROMINO;
+
 extern SDL_Renderer *renderer;
 extern Tetromino_Actions TETROMINO_ACTION;
 
 void init_tetris();
+
 bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size);
-bool render_ghost_tetromino(Tetromino_state tetromino);
+
+bool render_ghost_tetromino(Tetromino_state tetromino, u8 previous_ghost_coords[]);
+
 void update_game();
+
 bool spawn_tetromino();
+
+bool render_current_tetromino(Tetromino_state tetromino, Tetromino_state ghost_tetromino);
 
 #endif

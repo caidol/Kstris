@@ -10,16 +10,6 @@ extern TTF_Font *gFont;
 // tetronimo colour val defs
 #ifndef _BLOCK_COLOURS_
 #define _BLOCK_COLOURS_
-typedef enum {
-    CYAN_HEX =		0x00FFFFFF, 
-    BLUE_HEX =		0x0000FFFF, 
-    ORANGE_HEX =	0xFF8D00FF, 
-    GREEN_HEX =		0x00FF00FF, 
-    RED_HEX =		0xFF0000FF, 
-    MAGENTA_HEX =	0xFF00FFFF, 
-    YELLOW_HEX =	0xFFFF00FF,
-    GRAY_HEX =		0x808080FF, 
-} Hex_colours;
 
 enum colours{
     CYAN, 
@@ -47,5 +37,15 @@ static const u8 BLOCK_COLOURS_RGB[NUM_BLOCK_COLOURS][3] = {
 #endif
 
 void init_graphics();
+
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour);
+
 void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour);
+
+void draw_playfield(SDL_Renderer *renderer);
+
+void render_frame(SDL_Renderer *renderer);
+
+void update_render();
+
+void cleanup_graphics();

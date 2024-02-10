@@ -1,5 +1,4 @@
 #include "main.h"
-#include "game.h"
 
 int main(int argc, const char * argv[]){
     // Initialise system
@@ -8,15 +7,19 @@ int main(int argc, const char * argv[]){
 
     bool quit = false; 
     while(!quit){
-	//printf("test\n");
 	
 	process_input();
 
 	update_game();
 
-	// To allow for 60fps wait 1000 / 60
-	SDL_Delay(16);
-    }
+	update_render();
 	
+	// to allow for 30fps wait 1000 / 30 = 33ms
+	// attempting 30fps for now
+	//SDL_Delay(33);
+	SDL_Delay(33);
+    }
+    
+    sdl_cleanup();
     return 0;
 };

@@ -1,8 +1,4 @@
-#include "main.h"
 #include "graphics.h"
-#include "game.h"
-#include <SDL2/SDL_events.h>
-#include <stdlib.h>
 
 #define default_alpha 255
 
@@ -13,6 +9,9 @@
 SDL_Window* window;
 SDL_Renderer* renderer;
 TTF_Font* gFont;
+
+// set the default render state 
+bool render_changed = true;
 
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
@@ -47,7 +46,9 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     SDL_RenderFillRect(renderer, &outer);
 
     SDL_SetRenderDrawColor(renderer, *rgb_code, *(rgb_code + 1), *(rgb_code + 2), default_alpha);
-    SDL_RenderFillRect(renderer, &inner);
+    SDL_RenderFillRect(renderer, &inner);   
+
+    render_changed = true;
 }
 
 void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour){
@@ -71,7 +72,9 @@ void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour){
     SDL_RenderFillRect(renderer, &outline);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, default_alpha);
-    SDL_RenderFillRect(renderer, &inner);
+    SDL_RenderFillRect(renderer, &inner);  
+
+    render_changed = true;
 }
 
 void draw_playfield(SDL_Renderer* renderer){
@@ -80,8 +83,7 @@ void draw_playfield(SDL_Renderer* renderer){
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, default_alpha);
     
-    SDL_RenderClear(renderer);   
-    SDL_RenderPresent(renderer);
+    SDL_RenderClear(renderer);       
 
     // Drawing border
     for (int width = 0; width < PLAYFIELD_WIDTH; width++){
@@ -99,7 +101,7 @@ void draw_playfield(SDL_Renderer* renderer){
 	}
     }
 
-    SDL_RenderPresent(renderer);
+    render_changed = true;
 }
 
 // Initialise graphics
@@ -139,7 +141,6 @@ void init_graphics(){
     
     // TODO: Use the render_graphics() function in place with repeated use of SDL_RenderPresent();
     draw_playfield(renderer);
-    SDL_RenderPresent(renderer);
    
     /*
     // TODO: Create the texture for render context and load in a .ttf font
@@ -170,14 +171,21 @@ void init_graphics(){
 
 void render_frame(SDL_Renderer* renderer){ 
     // setting the target to NULL will automatically render to the window
-    SDL_SetRenderTarget(renderer, NULL); 
-
     SDL_RenderPresent(renderer);
+}
+
+void update_render(){
+    if (render_changed){
+	// run the render_frame function
+	
+	printf("RENDERING FRAME\n");
+	render_frame(renderer);
+	render_changed = false;
+    }
 }
 
 void cleanup_graphics(){
     // Clean resources by destroying window and quitting from SDL2 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    SDL_Quit();
 }

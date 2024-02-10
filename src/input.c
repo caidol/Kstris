@@ -54,6 +54,18 @@ void process_input(){
 		    default:
 			break;
 	    }
+	    break;
+	    
+	    case SDL_KEYUP:
+		TETROMINO_ACTION = NONE;
+		break;
+
+	    case SDL_USEREVENT:
+		TETROMINO_ACTION = AUTO_DROP;
+		break;
+
+	    default:
+		break;
 	}
     }
 }
