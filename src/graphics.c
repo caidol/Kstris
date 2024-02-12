@@ -11,7 +11,7 @@ SDL_Renderer* renderer;
 TTF_Font* gFont;
 
 // set the default render state 
-bool render_changed = true;
+bool render_changed = false;
 
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
@@ -139,23 +139,18 @@ void init_graphics(){
 	exit(1);
     }
     
-    // TODO: Use the render_graphics() function in place with repeated use of SDL_RenderPresent();
-    draw_playfield(renderer);
-   
-    /*
     // TODO: Create the texture for render context and load in a .ttf font
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     // Create a texture for a rendering context 
-    SDL_Texture *texture = SDL_CreateTexture(
+    SDL_Texture *display = SDL_CreateTexture(
 	renderer, 
 	SDL_PIXELFORMAT_RGBA8888, 
 	SDL_TEXTUREACCESS_TARGET, 
 	WINDOW_WIDTH, WINDOW_HEIGHT
     );
 
-    SDL_SetRenderTarget(renderer, texture);
- 
+    /*
     // Load font 
     gFont = TTF_OpenFont("src/font/PressStart2P.ttf", 30);
 
@@ -169,17 +164,24 @@ void init_graphics(){
     */
 }
 
-void render_frame(SDL_Renderer* renderer){ 
+void pre_render(SDL_Texture *display){
+    SDL_SetRenderTarget(renderer, display);
+}
+
+void render_frame(SDL_Renderer* renderer, SDL_Texture *display){ 
     // setting the target to NULL will automatically render to the window
+    SDL_SetRenderTarget(renderer, NULL);
+    SDL_RenderCopy(renderer, display, NULL, NULL);
+
     SDL_RenderPresent(renderer);
 }
 
-void update_render(){
+void update_render(SDL_Texture *display){
     if (render_changed){
 	// run the render_frame function
 	
 	printf("RENDERING FRAME\n");
-	render_frame(renderer);
+	render_frame(renderer, display);
 	render_changed = false;
     }
 }

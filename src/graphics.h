@@ -1,15 +1,16 @@
 #include "defs.h"
 
+#ifndef _BLOCK_COLOURS_
+#define _BLOCK_COLOURS_
+
 extern SDL_Window *window;
-extern SDL_Renderer *texture;
+extern SDL_Renderer *renderer;
 extern SDL_Texture *display;
 extern TTF_Font *gFont;
 
 #define NUM_BLOCK_COLOURS 9
 
 // tetronimo colour val defs
-#ifndef _BLOCK_COLOURS_
-#define _BLOCK_COLOURS_
 
 enum colours{
     CYAN, 
@@ -38,14 +39,16 @@ static const u8 BLOCK_COLOURS_RGB[NUM_BLOCK_COLOURS][3] = {
 
 void init_graphics();
 
+void pre_render(SDL_Texture *display);
+
 void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour);
 
 void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour);
 
 void draw_playfield(SDL_Renderer *renderer);
 
-void render_frame(SDL_Renderer *renderer);
+void render_frame(SDL_Renderer *renderer, SDL_Texture *texture);
 
-void update_render();
+void update_render(SDL_Texture *display);
 
 void cleanup_graphics();

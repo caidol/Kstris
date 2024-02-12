@@ -28,6 +28,17 @@ static struct{
     SDL_TimerID softdrop_timer;
 } game_process;
 
+void init_playfield(){
+    // Initialise every value within the playfield to AN EMPTY BLOCK
+     
+    for(int row = 0; row < EXCLUDE_BORDER_HEIGHT; row++){
+	for(int col = 0; col < EXCLUDE_BORDER_WIDTH; col++){
+	    //game_process.PLAYFIELD[row][col] = 0;
+	    game_process.board[row][col] = EMPTY_HEX;
+	}
+    }
+}
+
 void init_tetris(){
     // set up SDL timer  
     if (game_process.autodrop_timer != 0){
@@ -42,18 +53,9 @@ void init_tetris(){
     game_process.autodrop_timer = 0;
     game_process.softdrop_timer = 0;
 
+    init_playfield();
+    draw_playfield(renderer);
     spawn_tetromino();
-}
-
-void init_playfield(){
-    // Initialise every value within the playfield to AN EMPTY BLOCK
-    
-    for(int row = 0; row < EXCLUDE_BORDER_HEIGHT; row++){
-	for(int col = 0; col < EXCLUDE_BORDER_WIDTH; col++){
-	    //game_process.PLAYFIELD[row][col] = 0;
-	    game_process.board[row][col] = EMPTY_HEX;
-	}
-    }
 }
 
 bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size){ 
@@ -203,6 +205,16 @@ bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){ //, u8 p
 }
 
 bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_coords[]){
+    u8 *tetromino_coordinate_queue = NULL;
+
+    if (tetromino_coordinate_queue == NULL){
+	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
+    }
+    
+    if (!check_tetromino(ghost_tetromino, tetromino_coordinate_queue)){
+	return false;
+    } 
+
     i8 ghost_x = ghost_tetromino.x, ghost_y = ghost_tetromino.y;
 
     for(int i = 0; i < 4; i++){
@@ -214,16 +226,6 @@ bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_c
 	    printf("CLEARING\n");
 	    draw_block(renderer, _x, _y, EMPTY); 
 	}
-    }
-
-    u8 *tetromino_coordinate_queue = NULL;
-
-    if (tetromino_coordinate_queue == NULL){
-	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
-    }
-    
-    if (!check_tetromino(ghost_tetromino, tetromino_coordinate_queue)){
-	return false;
     } 
 
     // shift all the blocks down to the lowest possible row
@@ -259,6 +261,7 @@ bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_c
 	previous_ghost_coords[i * 2 + 1] = _y;
     }
 
+    free(tetromino_coordinate_queue);
     return true;
 }
 
@@ -285,7 +288,7 @@ This function will retrieve the next tetromino from the render queue
 -> a release of a held tetromino will override queue
 */
 bool spawn_tetromino(){
-    printf("HELLO\n");
+    draw_playfield(renderer);
     // use current time as a seed 
     srand(time(0));
 
@@ -537,10 +540,8 @@ void update_game(){
 	    }
 
 	    u8 *autodrop_queue = NULL;
-	    
-	    render_current_tetromino(tetromino, ghost_tetromino);
 
-	    if (check_tetromino(tetromino, autodrop_queue)){
+	    if (!render_current_tetromino(tetromino, ghost_tetromino)){
 		lock_delay_count++;
 	    }
 	    else{
@@ -548,7 +549,7 @@ void update_game(){
 	    }
 
 	    break;
-    }
+    } 
 
     TETROMINO_ACTION = NONE;
 }

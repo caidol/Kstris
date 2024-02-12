@@ -12,7 +12,7 @@ void init_system(){
 
     // Initialise graphics 
     init_graphics();
-    
+
     init_tetris();
 }
 
