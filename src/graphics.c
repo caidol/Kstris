@@ -1,7 +1,5 @@
 #include "graphics.h"
 
-#define default_alpha 255
-
 #define check_rgb_overflow(channel) ( channel > 255 ) ? ( channel = 255 ) : ( channel )
 #define check_rgb_underflow(channel) ( channel < 0 ) ? ( channel = 0 ) : ( channel )
 
@@ -77,40 +75,13 @@ void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour){
     render_changed = true;
 }
 
-void draw_playfield(SDL_Renderer* renderer){
-    // Function to draw the playfield, starting by drawing the border around which 
-    // the playfield will be contained
-
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, default_alpha);
-    
-    SDL_RenderClear(renderer);       
-
-    // Drawing border
-    for (int width = 0; width < PLAYFIELD_WIDTH; width++){
-	for (int height = 0; height < PLAYFIELD_HEIGHT; height++){
-	    if (height == 0 || height == PLAYFIELD_HEIGHT - 1){
-		// Draw the row of gray border blocks for the top and bottom row
-		
-		draw_block(renderer, width, height, GRAY);
-	    }
-	    else if (width == 0 || width == PLAYFIELD_WIDTH - 1){
-		// Draw the column of border blocks for the left and right columns 
-		
-		draw_block(renderer, width, height, GRAY);
-	    }   
-	}
-    }
-
-    render_changed = true;
-}
-
 // Initialise graphics
 void init_graphics(){
     u32 sdl_flags = SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS;
     if (SDL_Init(sdl_flags) != 0){
 	printf("error initialising SDL: %s\n", SDL_GetError());
 	exit(1);
-    }
+    } 
 
     window = SDL_CreateWindow(
 	// Window title 

@@ -19,6 +19,8 @@
 #ifndef _GLOBAL_CONSTANTS
 #define _GLOBAL_CONSTANTS
 
+#define default_alpha 255
+
 // unsigned integers 
 typedef uint8_t u8;
 typedef uint16_t u16;

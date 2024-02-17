@@ -2,8 +2,8 @@
 
 // Define playfield macros 
 
-#define EXCLUDE_BORDER_WIDTH 20
-#define EXCLUDE_BORDER_HEIGHT 10
+#define EXCLUDE_BORDER_WIDTH 10
+#define EXCLUDE_BORDER_HEIGHT 20
 #define PLAYFIELD_SIZE (PLAYFIELD_WIDTH * PLAYFIELD_WIDTH)
 
 // TODO: Add challenge to the game once it is completed by decreasing the "frames per level"
@@ -13,8 +13,7 @@
 //	-> static ensures that only one instance can exist during execution
 static struct{
     //u8 PLAYFIELD[EXCLUDE_BORDER_HEIGHT][EXCLUDE_BORDER_WIDTH];
-    Hex_colours board[EXCLUDE_BORDER_HEIGHT][EXCLUDE_BORDER_WIDTH];
-
+    u8 playfield[22][12];
     u32 score, lines;
 
     struct {
@@ -28,13 +27,66 @@ static struct{
     SDL_TimerID softdrop_timer;
 } game_process;
 
+void draw_playfield_border(SDL_Renderer* renderer){
+    // function to draw the playfield border which will 
+    // be around the pieces.
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, default_alpha); 
+    SDL_RenderClear(renderer);       
+
+    // Drawing border
+    for (int height = 0; height < PLAYFIELD_HEIGHT; height++){
+	for (int width = 0; width < PLAYFIELD_WIDTH; width++){
+	    if (height == 0 || height == PLAYFIELD_HEIGHT - 1){
+		// Draw the row of gray border blocks for the top and bottom row
+		
+		//draw_block(renderer, width, height, GRAY);
+		set_playfield_block(width, height, GRAY);
+	    }
+	    else if (width == 0 || width == PLAYFIELD_WIDTH - 1){
+		// Draw the column of border blocks for the left and right columns 
+		
+		//draw_block(renderer, width, height, GRAY);
+		set_playfield_block(width, height, GRAY);
+	    }   
+	}
+    }
+
+    render_changed = true;
+}
+
 void init_playfield(){
-    // Initialise every value within the playfield to AN EMPTY BLOCK
-     
-    for(int row = 0; row < EXCLUDE_BORDER_HEIGHT; row++){
-	for(int col = 0; col < EXCLUDE_BORDER_WIDTH; col++){
+    // Initialise every value within the playfield (excluding border) to AN EMPTY BLOCK
+    
+    for(int row = 1; row < PLAYFIELD_HEIGHT - 1; row++){
+	for(int col = 1; col < PLAYFIELD_WIDTH - 1; col++){
 	    //game_process.PLAYFIELD[row][col] = 0;
-	    game_process.board[row][col] = EMPTY_HEX;
+	    //game_process.playfield[row][col] = EMPTY;   
+	    
+	    set_playfield_block(col, row, EMPTY);
+	}
+    }
+
+    for(int row = 1; row < PLAYFIELD_HEIGHT - 1; row++){
+	for(int col = 1; col < PLAYFIELD_WIDTH - 1; col++){
+	    //game_process.PLAYFIELD[row][col] = 0;
+	    printf("colour: %d\n", game_process.playfield[row][col]);
+	}
+    }
+}
+
+void draw_playfield(){
+    for(int row = 0; row < PLAYFIELD_HEIGHT; row++){
+	for(int col = 0; col < PLAYFIELD_WIDTH; col++){
+	    //game_process.PLAYFIELD[row][col] = 0;
+
+	    //printf("row: %d\n", row);
+	    //printf("col: %d\n", col);
+	    printf("COLOUR: %d\n", game_process.playfield[row][col]);
+
+	    //draw_block(renderer, col, row, game_process.playfield[row][col]);
+	    
+	    set_playfield_block(col, row, game_process.playfield[row][col]);
 	}
     }
 }
@@ -54,11 +106,39 @@ void init_tetris(){
     game_process.softdrop_timer = 0;
 
     init_playfield();
-    draw_playfield(renderer);
+    draw_playfield_border(renderer);
+
     spawn_tetromino();
 }
 
-bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size){ 
+void lock_tetromino(){
+    // reset the lock delay count 
+    lock_delay_count = 0;
+
+    for(int i = 0; i < 4; i++){
+	u8 x = i * 2;
+	u8 y = (i * 2) + 1;
+
+	u8 _x = previous_coords[x];
+	u8 _y = previous_coords[y];
+
+	printf("previous x: %d\n", _x);
+	printf("previous y: %d\n", _y);
+
+	previous_coords[x] = 0;
+	previous_coords[y] = 0;
+
+	previous_ghost_coords[x] = 0;
+	previous_ghost_coords[y] = 0;
+	
+	set_playfield_block(_x, _y, CURRENT_TETROMINO.shape.colour_id);
+    }
+
+    draw_playfield();
+    spawn_tetromino();
+}
+
+bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue){ 
     bool can_render_tetromino = true;
     u8 row = 0, col = 0;
 
@@ -69,11 +149,7 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_
     u16 bit, piece;
     piece = tetromino.shape.rotations[tetromino.rotation_id]; 
 
-    *array_size = 2;    
-
-    if(tetromino.x == 0){
-	tetromino.x += 1;
-    }
+    u8 array_size = 2;     
 
     /*
     below is an error check 
@@ -96,10 +172,18 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_
 	    u8 _x = x + col; 
 	    u8 _y = y + row;
 
+	    printf("piece & bit: %d\n", piece & bit);
+	    printf("BLOCK COLOUR: %d\n", get_block_colour(_x, _y));
+	    printf("col: %d\n", col);
+	    printf("row: %d\n", row);
+	    printf("x: %d\n", _x);
+	    printf("y: %d\n", _y);
+
 	    // account for gray block border
 	    if ((_x < 1) || (_x >= PLAYFIELD_WIDTH - 1)
 		|| (_y < 1) || (_y >= PLAYFIELD_HEIGHT - 1)
-		){
+		|| get_block_colour(_x, _y) != EMPTY){
+		
 		// tetromino block falls out of bounds 
 		return false;
 		break;
@@ -107,13 +191,13 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_
 	    else {
 		int queue_limit = 2 * (block_limit + 1);
     
-		if (*array_size < queue_limit && tetromino_coordinate_queue != NULL){
+		if (array_size < queue_limit && tetromino_coordinate_queue != NULL){
 		    tetromino_coordinate_queue = (u8*) realloc(
 			tetromino_coordinate_queue, 
 			queue_limit * sizeof(u8)
 		    );
 
-		    *array_size += 2;
+		    array_size += 2;
 		}	
 
 		// update queue 
@@ -137,22 +221,6 @@ bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_
     return true;
 }
 
-
-// TODO: Maybe think of another workaround for this solution 
-
-// This function will quickly run the valid_render_tetromino() function
-// to ensure whether it is capable of being run
-bool check_tetromino(Tetromino_state tetromino, u8 *coordinate_queue){
-    u8 size = 0;
-    u8 *array_size = &size;
-
-    if(!valid_render_tetromino(tetromino, coordinate_queue, array_size)){
-	return false;
-    }
-
-    return true;
-}
-
 bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){ //, u8 previous_coords[]){
     // TODO: Check the previous tetromino spawn as well to ensure that no tetromino type 
     //       is spawned more than once.
@@ -163,7 +231,7 @@ bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){ //, u8 p
 	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
     }
     
-    if (!check_tetromino(tetromino, tetromino_coordinate_queue)){
+    if (!valid_render_tetromino(tetromino, tetromino_coordinate_queue)){
 	return false;
     }
 
@@ -188,11 +256,6 @@ bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]){ //, u8 p
 	u8 _x = tetromino_coordinate_queue[i * 2];
 	u8 _y = tetromino_coordinate_queue[i * 2 + 1];
 	
-	//game_process.PLAYFIELD[_x][_y] = 1;
-	game_process.board[_x][_y] = tetromino.shape.colour;
-
-	//board[_x * PLAYFIELD_WIDTH + _y] = tetromino.shape.colour;
-
 	draw_block(renderer, _x, _y, tetromino.shape.colour_id);
 
 	// store the previous coordinates
@@ -211,7 +274,7 @@ bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_c
 	tetromino_coordinate_queue = (u8*) malloc(2 * sizeof(u8)); // TODO: Check for a null pointer
     }
     
-    if (!check_tetromino(ghost_tetromino, tetromino_coordinate_queue)){
+    if (!valid_render_tetromino(ghost_tetromino, tetromino_coordinate_queue)){
 	return false;
     } 
 
@@ -223,13 +286,12 @@ bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_c
     
 	// TODO: WORK ON CHECKING IF ANY COORDINATES AVAILABLE BEFORE RENDERING
 	if (previous_ghost_coords[0] != 0){
-	    printf("CLEARING\n");
 	    draw_block(renderer, _x, _y, EMPTY); 
 	}
     } 
 
     // shift all the blocks down to the lowest possible row
-    while(check_tetromino(ghost_tetromino, tetromino_coordinate_queue)){
+    while(valid_render_tetromino(ghost_tetromino, tetromino_coordinate_queue)){
 	ghost_tetromino.y += 1;
 	
 	for(int i = 0; i < 4; i++){
@@ -250,10 +312,6 @@ bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_c
 	u8 _x = tetromino_coordinate_queue[i * 2];
 	u8 _y = tetromino_coordinate_queue[i * 2 + 1];
 	
-	//game_process.PLAYFIELD[_x][_y] = 1;
-
-	//board[_x * PLAYFIELD_WIDTH + _y] = tetromino.shape.colour;
-
 	draw_outline(renderer, _x, _y, ghost_tetromino.shape.colour_id);
 
 	// store the previous coordinates
@@ -267,12 +325,9 @@ bool render_ghost_tetromino(Tetromino_state ghost_tetromino, u8 previous_ghost_c
 
 bool render_current_tetromino(Tetromino_state tetromino, Tetromino_state ghost_tetromino){
 
-    if(render_ghost_tetromino(ghost_tetromino, previous_ghost_coords)){
+    if(render_ghost_tetromino(ghost_tetromino, previous_ghost_coords)
+       && render_tetromino(tetromino, previous_coords)){
 	GHOST_TETROMINO = ghost_tetromino;
-    }
-
-    if(render_tetromino(tetromino, previous_coords)){
-       //&& render_ghost_tetromino(ghost_tetromino, previous_ghost_coords)){
 	CURRENT_TETROMINO = tetromino;
 
 	return true;
@@ -288,7 +343,7 @@ This function will retrieve the next tetromino from the render queue
 -> a release of a held tetromino will override queue
 */
 bool spawn_tetromino(){
-    draw_playfield(renderer);
+    //test_func();
     // use current time as a seed 
     srand(time(0));
 
@@ -455,8 +510,6 @@ void update_game(){
 	    break; 
 
 	case MOVE_LEFT:
-	    printf("MOVE LEFT\n");
-	    printf("TETROMINO ACTION: %d\n", TETROMINO_ACTION); 
 	    
 	    tetromino.x -= 1;
 	    ghost_tetromino.x -= 1;
@@ -467,8 +520,6 @@ void update_game(){
 	    break;
 
 	case MOVE_RIGHT:
-	    printf("MOVE RIGHT\n");
-	    printf("TETROMINO ACTION: %d\n", TETROMINO_ACTION);	
 	    
 	    tetromino.x += 1;
 	    ghost_tetromino.x += 1;
@@ -479,8 +530,6 @@ void update_game(){
 	    break; 
 
 	case ROTATE:
-	    printf("ROTATE\n");
-	    printf("TETROMINO ACTION: %d\n", TETROMINO_ACTION);
 
 	    tetromino = wall_kick(tetromino);
 	    tetromino.rotation_id = (tetromino.rotation_id + 1) % 4;
@@ -493,21 +542,11 @@ void update_game(){
 	    break;
 
 	case SOFT_DROP:
-	    printf("SOFT DROP\n");
-	    printf("TETROMINO ACTION: %d\n", TETROMINO_ACTION);
 	    
 	    if (SOFTDROP_EXPIRED){
 		tetromino.y += 1;
 		SOFTDROP_EXPIRED = false;
-	    }
-
-	    //u8 *soft_drop_queue = NULL;
-
-	    /*
-	    while(check_tetromino(tetromino, soft_drop_queue)) {
-		tetromino.y += 1;
 	    } 
-	    */	
 
 	    render_current_tetromino(tetromino, ghost_tetromino); 
 
@@ -515,8 +554,7 @@ void update_game(){
 	    
 	    break;
 	case HARD_DROP:
-	    printf("HARD DROP\n");
-	    printf("TETROMINO ACTION: %d\n", TETROMINO_ACTION);
+
 	    tetromino.y += 1;
 
 	    while(render_current_tetromino(tetromino, ghost_tetromino)){
@@ -528,8 +566,6 @@ void update_game(){
 	    break;
 
 	case AUTO_DROP:
-	    printf("AUTO DROP\n");
-	    printf("TETROMINO ACTION: %d\n", TETROMINO_ACTION);
 	    // Write a function to deal with tetrominos that are "locked"
 	    // at the bottom of the board
 	    
@@ -537,19 +573,36 @@ void update_game(){
 		tetromino.y += 1;
 		AUTODROP_EXPIRED = false;
 		printf("y: %d\n", tetromino.y);
-	    }
 
-	    u8 *autodrop_queue = NULL;
-
-	    if (!render_current_tetromino(tetromino, ghost_tetromino)){
-		lock_delay_count++;
-	    }
-	    else{
-		lock_delay_count = 0;
-	    }
+		printf("can render: %d\n", render_current_tetromino(tetromino, ghost_tetromino));
+		
+		if (!render_current_tetromino(tetromino, ghost_tetromino)){
+		    lock_delay_count++;
+		}
+		else{
+		    lock_delay_count = 0;
+		}
+	    
+		if (lock_delay_count >= lock_delay_limit){
+		    lock_tetromino();
+		}	
+	    } 
 
 	    break;
-    } 
+    }  
 
     TETROMINO_ACTION = NONE;
+}
+
+
+// NOTE: Indexing for the below functions starts at 0
+
+u8 get_block_colour(u8 _x, u8 _y){
+    return game_process.playfield[_y][_x];
+}
+
+void set_playfield_block(u8 _x, u8 _y, u8 colour){
+    game_process.playfield[_y][_x] = colour;
+
+    draw_block(renderer, _x, _y, colour);
 }

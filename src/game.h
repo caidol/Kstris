@@ -143,6 +143,7 @@ typedef struct {
 } Tetromino_state;
 
 static u8 lock_delay_count = 0;
+const static u8 lock_delay_limit = 2;
 
 static u8 previous_coords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 static u8 previous_ghost_coords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -158,7 +159,11 @@ extern Tetromino_Actions TETROMINO_ACTION;
 
 void init_tetris();
 
-bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue, u8 *array_size);
+void draw_playfield();
+
+void draw_border(SDL_Renderer *renderer);
+
+bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue);
 
 bool render_ghost_tetromino(Tetromino_state tetromino, u8 previous_ghost_coords[]);
 
@@ -167,5 +172,9 @@ void update_game();
 bool spawn_tetromino();
 
 bool render_current_tetromino(Tetromino_state tetromino, Tetromino_state ghost_tetromino);
+
+u8 get_block_colour(u8 _x, u8 _y);
+
+void set_playfield_block(u8 _x, u8 _y, u8 colour);
 
 #endif

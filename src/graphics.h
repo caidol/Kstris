@@ -45,7 +45,7 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour);
 
 void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour);
 
-void draw_playfield(SDL_Renderer *renderer);
+void draw_playfield_border(SDL_Renderer *renderer);
 
 void render_frame(SDL_Renderer *renderer, SDL_Texture *texture);
 
