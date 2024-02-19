@@ -121,9 +121,9 @@ void init_graphics(){
 	WINDOW_WIDTH, WINDOW_HEIGHT
     );
 
-    /*
     // Load font 
-    gFont = TTF_OpenFont("src/font/PressStart2P.ttf", 30);
+    //gFont = TTF_OpenFont("src/font/PressStart2P.ttf", 30);
+    gFont = TTF_OpenFont("src/font/PixeloidSansBold.ttf", 30);
 
     if (gFont == NULL){
 	printf("Error loading font %s\n", SDL_GetError());
@@ -132,7 +132,6 @@ void init_graphics(){
 
     // Set the font hinting 
     TTF_SetFontHinting(gFont, TTF_HINTING_MONO);
-    */
 }
 
 void pre_render(SDL_Texture *display){

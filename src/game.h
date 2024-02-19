@@ -25,7 +25,6 @@ typedef enum {
 
 typedef struct{
     // Follow standard RGBA convention 0xRRGGBBAA
-    Hex_colours colour;
     u8 colour_id;
 
     // The following array contains the rotation scheme 
@@ -42,7 +41,6 @@ typedef struct{
 static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     {
 	// I (line)	
-	.colour = CYAN_HEX,
 	.colour_id = CYAN, 
 
 	.rotations = {
@@ -54,7 +52,6 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },
     {
 	// L (right L)
-	.colour = BLUE_HEX, 
 	.colour_id = BLUE, 
 
 	.rotations = {
@@ -66,7 +63,6 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },       
     {
 	// J (left L)
-	.colour = ORANGE_HEX, 
 	.colour_id = ORANGE, 
 
 	.rotations = {
@@ -78,7 +74,6 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },
     {
 	// S (right skew)
-	.colour = GREEN_HEX,
 	.colour_id = GREEN, 
 
 	.rotations = {
@@ -90,7 +85,6 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     }, 
     {
 	// Z (left skew) 
-	.colour = RED_HEX, 
 	.colour_id = RED, 
 
 	.rotations = {
@@ -102,7 +96,6 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     }, 
     {
 	// T 
-	.colour = MAGENTA_HEX, 
 	.colour_id = MAGENTA, 
 
 	.rotations = {
@@ -114,7 +107,6 @@ static const Tetromino TETROMINOS[NUM_TETROMINOS] = {
     },
     {
 	// O (cube)
-	.colour = YELLOW_HEX, 
 	.colour_id = YELLOW, 
 
 	.rotations = {
@@ -145,8 +137,10 @@ typedef struct {
 static u8 lock_delay_count = 0;
 const static u8 lock_delay_limit = 2;
 
-static u8 previous_coords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-static u8 previous_ghost_coords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+static u8 previous_coords[8]        =	{0, 0, 0, 0, 0, 0, 0, 0};
+static u8 previous_ghost_coords[8]  =	{0, 0, 0, 0, 0, 0, 0, 0};
+static u8 previous_next_coords[8]   =	{0, 0, 0, 0, 0, 0, 0, 0};
+static u8 previous_hold_coords[8]   =	{0, 0, 0, 0, 0, 0, 0, 0};
 
 static bool AUTODROP_EXPIRED = false;
 static bool SOFTDROP_EXPIRED = false;
@@ -161,17 +155,27 @@ void init_tetris();
 
 void draw_playfield();
 
-void draw_border(SDL_Renderer *renderer);
+void draw_playfield_border(SDL_Renderer *renderer);
+
+bool render_showcase_tetromino(Tetromino_state tetromino, u8 previous_coords[]);
 
 bool valid_render_tetromino(Tetromino_state tetromino, u8 *tetromino_coordinate_queue);
 
+bool render_tetromino(Tetromino_state tetromino, u8 previous_coords[]);
+
 bool render_ghost_tetromino(Tetromino_state tetromino, u8 previous_ghost_coords[]);
 
-void update_game();
+bool render_current_tetromino(Tetromino_state tetromino, Tetromino_state ghost_tetromino);
 
 bool spawn_tetromino();
 
-bool render_current_tetromino(Tetromino_state tetromino, Tetromino_state ghost_tetromino);
+void render_next_showcase();
+
+void render_hold_showcase();
+
+void render_showcase_information(SDL_Surface* scoreSurface);
+
+void update_game();
 
 u8 get_block_colour(u8 _x, u8 _y);
 
