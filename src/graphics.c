@@ -150,7 +150,6 @@ void update_render(SDL_Texture *display){
     if (render_changed){
 	// run the render_frame function
 	
-	printf("RENDERING FRAME\n");
 	render_frame(renderer, display);
 	render_changed = false;
     }

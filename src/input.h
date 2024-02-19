@@ -11,6 +11,7 @@ typedef enum{
     SOFT_DROP, 
     HARD_DROP,
     AUTO_DROP,
+    HOLD,
 } Tetromino_Actions;
 
 extern Tetromino_Actions TETROMINO_ACTION;

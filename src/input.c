@@ -1,4 +1,5 @@
 #include "input.h"
+#include <SDL2/SDL_keycode.h>
 
 Tetromino_Actions TETROMINO_ACTION;
 
@@ -24,33 +25,32 @@ void process_input(){
 		    
 		    case SDLK_s:
 		    case SDLK_DOWN:
-			printf("ACTION: SOFT DROP\n");
 			TETROMINO_ACTION = SOFT_DROP;
 			break;
 		    
 		    case SDLK_w:
 		    case SDLK_UP:
-			printf("ACTION: ROTATE\n");
 			TETROMINO_ACTION = ROTATE;
 			break;
 		    
 		    case SDLK_a:
 		    case SDLK_LEFT:
-			printf("ACTION: MOVE LEFT\n");
 			TETROMINO_ACTION = MOVE_LEFT;
 			break;
 
 		    case SDLK_d:
 		    case SDLK_RIGHT:
-			printf("ACTION: MOVE RIGHT\n");
 			TETROMINO_ACTION = MOVE_RIGHT;
 			break;
 
 		    case SDLK_SPACE:
-			printf("ACTION: HARD DROP\n");
 			TETROMINO_ACTION = HARD_DROP;
 			break;
 
+		    case SDLK_c:
+			TETROMINO_ACTION = HOLD;
+			break;
+			
 		    default:
 			break;
 	    }

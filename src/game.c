@@ -174,20 +174,25 @@ void lock_tetromino(){
     //TODO: Could make a constant
     u16 scores[4] = {40, 100, 300, 1200};    
 
+    // update the lines
+    game_process.lines += completed_lines;
+
+    if (game_process.lines % 10 == 0 && game_process.lines != 0){
+	game_process.level += 1;
+    }
+
     // update the score 
+
+    printf("score: %d\n", scores[completed_lines - 1]);
+    printf("level: %d\n", game_process.level);
+    printf("lines: %d\n", game_process.lines);
+
     if(completed_lines > 0){
 	// https://tetris.wiki/Scoring for more scoring info
 	// 
 	// -> Using Original Nintendo scoring system
 
-	game_process.score += ( scores[completed_lines] - 1 * (game_process.level + 1));
-    }
-
-    // update the lines
-    game_process.lines += completed_lines;
-
-    if (game_process.lines % 10 == 0){
-	game_process.level += 1;
+	game_process.score += (scores[completed_lines - 1]) * (game_process.level + 1);
     }
 
     draw_playfield();
@@ -461,6 +466,10 @@ bool spawn_tetromino(){
     CURRENT_TETROMINO = current_tetromino;
     GHOST_TETROMINO = current_ghost_tetromino;
 
+    if (!can_swap_held){
+	can_swap_held = true;
+    }
+
     game_process.ttm_queue.next = (const Tetromino*) &TETROMINOS[rand() % NUM_TETROMINOS];
     
     render_next_showcase();
@@ -500,8 +509,6 @@ Tetromino_state wall_kick(Tetromino_state tetromino){
 }
 
 u32 autodrop_callback(u32 interval, void *param){
-    //printf("CALLBACK 1 CALLED\n");
-
     SDL_Event event;
     SDL_UserEvent user_event;
 
@@ -521,8 +528,6 @@ u32 autodrop_callback(u32 interval, void *param){
 }
 
 u32 softdrop_callback(u32 interval, void *param){
-    //printf("CALLBACK 2 CALLED\n");
-
     SDL_Event event;
     SDL_UserEvent user_event;
 
@@ -545,10 +550,10 @@ void render_next_showcase(){
     // Set the text colour -> implementing hexadecimal
     SDL_Color fg_textColour = { 0xFF, 0xFF, 0xFF };
 
-    SDL_Surface *textSurface = TTF_RenderText_Blended(gFont, "NEXT", fg_textColour);
+    SDL_Surface *nextSurface = TTF_RenderText_Blended(gFont, "NEXT", fg_textColour);
 
     // convert SDL_Surface into a texture 
-    SDL_Texture *next_message = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture *next_message = SDL_CreateTextureFromSurface(renderer, nextSurface);
 
     if (next_message == NULL){
 	fprintf(stderr, 
@@ -573,17 +578,17 @@ void render_next_showcase(){
     render_showcase_tetromino(next_tetromino, previous_next_coords);
 
     SDL_DestroyTexture(next_message);
-    SDL_FreeSurface(textSurface);
+    SDL_FreeSurface(nextSurface);
 }
 
 void render_hold_showcase(){
     // Set the text colour -> implementing hexadecimal
     SDL_Color fg_textColour = { 0xFF, 0xFF, 0xFF };
 
-    SDL_Surface *textSurface = TTF_RenderText_Blended(gFont, "HOLD", fg_textColour);
+    SDL_Surface *holdSurface = TTF_RenderText_Blended(gFont, "HOLD", fg_textColour);
 
     // convert SDL_Surface into a texture 
-    SDL_Texture *hold_message = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture *hold_message = SDL_CreateTextureFromSurface(renderer, holdSurface);
 
     if (hold_message == NULL){
 	fprintf(stderr, 
@@ -594,7 +599,7 @@ void render_hold_showcase(){
     }
 
     SDL_Rect hold_rect;
-    hold_rect.x = 17 * (BLOCK_SIZE), hold_rect.y = 1 * (BLOCK_SIZE);
+    hold_rect.x = 21 * (BLOCK_SIZE), hold_rect.y = 1 * (BLOCK_SIZE);
     hold_rect.w = 150, hold_rect.h = 50;
 
     SDL_RenderCopy(renderer, hold_message, NULL, &hold_rect);
@@ -602,13 +607,13 @@ void render_hold_showcase(){
     Tetromino_state hold_tetromino = {
 	*game_process.hold, 
 	0,
-	(u8) 14, (u8) 2,
+	(u8) 20, (u8) 2,
     };
     
     render_showcase_tetromino(hold_tetromino, previous_hold_coords);
 
     SDL_DestroyTexture(hold_message);
-    SDL_FreeSurface(textSurface);
+    SDL_FreeSurface(holdSurface);
 }
 
 void render_showcase_information(SDL_Surface *scoreSurface){
@@ -633,9 +638,11 @@ void render_showcase_information(SDL_Surface *scoreSurface){
 	exit(1);
     }
 
+    int NUM_DIGITS = count_digits(game_process.score);
+
     SDL_Rect score_rect;
     score_rect.x = 15 * (BLOCK_SIZE), score_rect.y = 10 * (BLOCK_SIZE);
-    score_rect.w = 50, score_rect.h = 40;
+    score_rect.w = 40 * (NUM_DIGITS), score_rect.h = 50;
 
     if (scoreSurface != NULL){
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -660,11 +667,11 @@ void update_game(){
 
     if (game_process.autodrop_timer == 0){
 	printf("ADDING TIMER\n");
-	game_process.autodrop_timer = SDL_AddTimer(500, autodrop_callback, NULL);
+	game_process.autodrop_timer = SDL_AddTimer(450, autodrop_callback, NULL);
     }
 
     if (game_process.softdrop_timer == 0){
-	game_process.softdrop_timer = SDL_AddTimer(10, softdrop_callback, NULL);
+	game_process.softdrop_timer = SDL_AddTimer(5, softdrop_callback, NULL);
     }
 
     Tetromino_state tetromino = CURRENT_TETROMINO;
@@ -758,6 +765,53 @@ void update_game(){
 		}	
 	    } 
 
+	    break;
+
+	case HOLD:
+	    if (can_swap_held){
+		const Tetromino *temp = game_process.ttm_queue.current;
+		
+		// check if first time holding
+		if (!tetromino_held){
+		    game_process.hold = temp;
+
+		    tetromino_held = true;
+
+		    // spawn a new tetromino 
+		    spawn_tetromino();
+		}
+		else{
+		    game_process.ttm_queue.current = game_process.hold;
+		    game_process.hold = temp;
+
+		    // re-initalise the current tetromino
+
+		    Tetromino_state current_tetromino = {
+			*game_process.ttm_queue.current,
+			0,
+			(u8) (PLAYFIELD_WIDTH / 2) - 2, (u8) 1,
+		    };
+    
+		    // ghost tetromino equivalent
+		    Tetromino_state current_ghost_tetromino = {
+			*game_process.ttm_queue.current,
+			0,
+			(u8) (PLAYFIELD_WIDTH / 2) - 2, (u8) 1,
+		    };
+
+		    CURRENT_TETROMINO = current_tetromino;
+		    GHOST_TETROMINO = current_ghost_tetromino;
+
+		    // Move tetromino back to the top
+		    CURRENT_TETROMINO.y = 1;
+		}
+
+		can_swap_held = false;
+	    }
+
+	    // render showcase info for hold
+	    render_hold_showcase();
+	    
 	    break;
     }  
 

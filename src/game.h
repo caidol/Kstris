@@ -1,6 +1,7 @@
 #include "defs.h"
 #include "input.h"
 #include "graphics.h"
+#include "util.h"
 
 #ifndef _GAME_CONSTANTS_
 #define _GAME_CONSTANTS_
@@ -144,6 +145,9 @@ static u8 previous_hold_coords[8]   =	{0, 0, 0, 0, 0, 0, 0, 0};
 
 static bool AUTODROP_EXPIRED = false;
 static bool SOFTDROP_EXPIRED = false;
+
+static bool tetromino_held = false;
+static bool can_swap_held = true;
 
 static Tetromino_state CURRENT_TETROMINO;
 static Tetromino_state GHOST_TETROMINO;
