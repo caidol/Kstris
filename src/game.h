@@ -8,18 +8,6 @@
 // an empty block will be the same as the background colour
 // -> black
 #define EMPTY 8
-#define EMPTY_HEX 0x000000FF
-
-typedef enum {
-    CYAN_HEX =		0x00FFFFFF, 
-    BLUE_HEX =		0x0000FFFF, 
-    ORANGE_HEX =	0xFF8D00FF, 
-    GREEN_HEX =		0x00FF00FF, 
-    RED_HEX =		0xFF0000FF, 
-    MAGENTA_HEX =	0xFF00FFFF, 
-    YELLOW_HEX =	0xFFFF00FF,
-    GRAY_HEX =		0x808080FF, 
-} Hex_colours;
 
 // Tetromino struct which defines its color and rotation schemes 
 //	--> per tetromino type
@@ -152,8 +140,18 @@ static bool can_swap_held = true;
 static Tetromino_state CURRENT_TETROMINO;
 static Tetromino_state GHOST_TETROMINO;
 
+static SDL_Color fg_textColour = { 0xFF, 0xFF, 0xFF };
+
 extern SDL_Renderer *renderer;
 extern Tetromino_Actions TETROMINO_ACTION;
+
+static bool level_increased;
+
+// Queue to determine the next tetromino.
+// Knuth shuffle algorithm is applied.
+static uint8_t tetromino_queue[7 * 4];
+static uint8_t tetromino_queue_size = 7*4;
+static uint8_t current_queue_index = 0;
 
 void init_tetris();
 
@@ -173,11 +171,13 @@ bool render_current_tetromino(Tetromino_state tetromino, Tetromino_state ghost_t
 
 bool spawn_tetromino();
 
+void write_messages();
+
 void render_next_showcase();
 
 void render_hold_showcase();
 
-void render_showcase_information(SDL_Surface* scoreSurface);
+void render_showcase_information();
 
 void update_game();
 

@@ -15,6 +15,7 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     //TODO: Add more comments
     assert(colour >= 0 && colour <= NUM_BLOCK_COLOURS);
     u8 rgb_code[3] = {*BLOCK_COLOURS_RGB[colour], *(BLOCK_COLOURS_RGB[colour] + 1), *(BLOCK_COLOURS_RGB[colour] + 2)};
+    u8 r, g, b;
 
     SDL_Rect outer;
     SDL_Rect inner;
@@ -25,14 +26,6 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     outer.w = BLOCK_SIZE;
     outer.h = BLOCK_SIZE; 
 
-    // setting boundary for inner colour of tetronimo block
-    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 3;
-    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 3; 
-    inner.w = BLOCK_SIZE - 6;
-    inner.h = BLOCK_SIZE - 6;
-
-    // Perform shifts to change the colour of the outside edge
-    unsigned int r, g, b;
     r = (*rgb_code >> 1) & 0xFF;
     check_rgb_overflow(r); check_rgb_underflow(r);
     g = *(rgb_code + 1) >> 1 & 0xFF;
@@ -41,10 +34,15 @@ void draw_block(SDL_Renderer* renderer, u8 x_pos, u8 y_pos, u8 colour){
     check_rgb_overflow(b); check_rgb_underflow(b);
 
     SDL_SetRenderDrawColor(renderer, r, g, b, default_alpha);
-    SDL_RenderFillRect(renderer, &outer);
+    SDL_RenderFillRect(renderer, &outer); 
+ 
+    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 2;
+    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 2; 
+    inner.w = BLOCK_SIZE - 4;
+    inner.h = BLOCK_SIZE - 4;
 
     SDL_SetRenderDrawColor(renderer, *rgb_code, *(rgb_code + 1), *(rgb_code + 2), default_alpha);
-    SDL_RenderFillRect(renderer, &inner);   
+    SDL_RenderFillRect(renderer, &inner);
 
     render_changed = true;
 }
@@ -61,10 +59,10 @@ void draw_outline(SDL_Renderer *renderer, u8 x_pos, u8 y_pos, u8 colour){
     outline.w = BLOCK_SIZE;
     outline.h = BLOCK_SIZE; 
 
-    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 2;
-    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 2; 
-    inner.w = BLOCK_SIZE - 4;
-    inner.h = BLOCK_SIZE - 4; 
+    inner.x = ((x_pos + 1) * BLOCK_SIZE) + 1;
+    inner.y = ((y_pos + 1) * BLOCK_SIZE) + 1; 
+    inner.w = BLOCK_SIZE - 2;
+    inner.h = BLOCK_SIZE - 2; 
 
     SDL_SetRenderDrawColor(renderer, *rgb_code, *(rgb_code + 1), *(rgb_code + 2), default_alpha);
     SDL_RenderFillRect(renderer, &outline);

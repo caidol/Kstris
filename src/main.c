@@ -31,7 +31,7 @@ int main(int argc, const char * argv[]){
 	
 	// to allow for 30fps wait 1000 / 30 = 33ms
 	// attempting 30fps for now
-	SDL_Delay(16);
+	SDL_Delay(1000 / 45);
     }
     
     sdl_cleanup();
