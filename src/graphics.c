@@ -121,7 +121,7 @@ void init_graphics(){
 
     // Load font 
     //gFont = TTF_OpenFont("src/font/PressStart2P.ttf", 30);
-    gFont = TTF_OpenFont("src/font/PixeloidSansBold.ttf", 30);
+    gFont = TTF_OpenFont("src/font/Bloxat.ttf", 30);
 
     if (gFont == NULL){
 	printf("Error loading font %s\n", SDL_GetError());

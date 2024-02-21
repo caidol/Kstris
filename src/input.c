@@ -6,18 +6,15 @@ Tetromino_Actions TETROMINO_ACTION;
 // Basic SDL input system -> will be altered later
 void process_input(){
     SDL_Event event;
-    //printf("event: %d\n", SDL_PollEvent(&event));
 
     // poll until all events are handled
     while (SDL_PollEvent(&event)){
 	switch(event.type){
 	    case SDL_QUIT:
-		printf("QUIT\n");
 		// TODO: Potentially return QUIT 
 		exit(0);
 		break;
 	    case SDL_KEYDOWN:
-		printf("KEYDOWN\n");
 		switch(event.key.keysym.sym){
 		    case SDLK_ESCAPE:
 			exit(0);
@@ -50,7 +47,10 @@ void process_input(){
 		    case SDLK_c:
 			TETROMINO_ACTION = HOLD;
 			break;
-			
+		
+		    case SDLK_r:
+			TETROMINO_ACTION = RESTART;
+
 		    default:
 			break;
 	    }
