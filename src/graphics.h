@@ -25,12 +25,12 @@ enum colours{
 
 // rgb codes for each block colour
 static const u8 BLOCK_COLOURS_RGB[NUM_BLOCK_COLOURS][3] = {
-    {0, 204, 204}, // CYAN
+    {0, 255, 255}, // CYAN
     {0, 128, 255}, // BLUE
     {255, 128, 0}, // ORANGE
-    {51, 255, 51}, // GREEN
+    {0, 255, 0}, // GREEN
     {255, 0, 0}, // RED 
-    {127, 0, 255}, // MAGENTA
+    {255, 0, 255}, // MAGENTA
     {255, 255, 51}, // YELLOW
     {96, 96, 96}, // GRAY
     {0, 0, 0} // BLACK (EMPTY)

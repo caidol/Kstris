@@ -187,6 +187,9 @@ void lock_tetromino(){
     if (game_process.lines % 10 == 0 && game_process.lines != 0 && !level_increased){
 	game_process.level += 1;
 	level_increased = true;
+	
+	SDL_RemoveTimer(game_process.autodrop_timer);
+	game_process.autodrop_timer = 0;
     }
  
     // update the score 
@@ -800,7 +803,12 @@ void render_showcase_information(){
 
 void update_game(){
     if (game_process.autodrop_timer == 0){
-	game_process.autodrop_timer = SDL_AddTimer(450 - (30 * game_process.level), autodrop_callback, NULL);
+	int callback_time = 450 - (30 * game_process.level);
+	if(callback_time < 50){
+	    callback_time = 50;
+	}
+
+	game_process.autodrop_timer = SDL_AddTimer(callback_time, autodrop_callback, NULL);
     }
 
     if (game_process.softdrop_timer == 0){
@@ -827,7 +835,6 @@ void update_game(){
 	    }
     
 	    if (!valid_render_tetromino(tetromino, tetromino_coordinate_queue)){
-		printf("CANT MOVE LEFT\n");
 		tetromino.x += 1;
 		ghost_tetromino.x += 1;
 	    }
@@ -850,7 +857,6 @@ void update_game(){
 	    }
     
 	    if (!valid_render_tetromino(tetromino, tetromino_coordinate_queue)){
-		printf("CANT MOVE RIGHT\n");
 		tetromino.x -= 1;
 		ghost_tetromino.x -= 1;
 	    }
@@ -870,12 +876,10 @@ void update_game(){
 	    ghost_tetromino = wall_kick(ghost_tetromino);
 		
 	    if(render_tetromino(tetromino, previous_coords)){
-		printf("ROTATING\n");
 		
 		render_current_tetromino(tetromino, ghost_tetromino);
 	    }
 	    else{
-		printf("NOT ROTATING\n");
 		tetromino.rotation_id = (tetromino.rotation_id - 1) % 4;
 		ghost_tetromino.rotation_id = (ghost_tetromino.rotation_id - 1) % 4;
 	    }
