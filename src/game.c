@@ -180,11 +180,10 @@ void lock_tetromino(){
 
     // update the lines
     game_process.lines += completed_lines; 
-    if(game_process.lines % 10 != 0 && game_process.lines != 0){
-	level_increased = false;
-    }
 
-    if (game_process.lines % 10 == 0 && game_process.lines != 0 && !level_increased){
+    u8 level_check = game_process.lines / 10;
+
+    if (level_check > game_process.level){
 	game_process.level += 1;
 	level_increased = true;
 	
@@ -193,7 +192,6 @@ void lock_tetromino(){
     }
  
     // update the score 
-
     if(completed_lines > 0){
 	// https://tetris.wiki/Scoring for more scoring info
 	// 

@@ -1,6 +1,6 @@
 CFLAGS   = -g `sdl2-config --cflags`
 LDFLAGS  = `sdl2-config --libs` -lSDL2 -lSDL2_image -lSDL2_gfx -lSDL2_ttf
-PROG = kstris
+PROG = Kstris
 CXX = gcc
 
 OBJS = main.o graphics.o input.o init.o game.o util.o
