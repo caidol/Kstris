@@ -1,5 +1,5 @@
 CFLAGS   = -g `sdl2-config --cflags`
-LDFLAGS  = `sdl2-config --libs` -lSDL2 -lSDL2_image -lSDL2_gfx -lSDL2_ttf
+LDFLAGS  = `sdl2-config --libs` -lSDL2 -lSDL2_image -lSDL2_ttf
 PROG = Kstris
 CXX = gcc
 
