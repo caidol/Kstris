@@ -29,8 +29,8 @@ int main(int argc, const char * argv[]){
 
 	update_render(display);
 	
-	// to allow for 30fps wait 1000 / 30 = 33ms
-	// attempting 30fps for now
+	// to allow for 45fps wait 1000 / 45 ms
+	// attempting 45fps for now
 	SDL_Delay(1000 / 45);
     }
     
