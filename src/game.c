@@ -987,9 +987,6 @@ void update_game(){
 	    render_hold_showcase();
 	    
 	    break;
-	
-	case RESTART:
-	    init_tetris();
     }  
 
     TETROMINO_ACTION = NONE;
